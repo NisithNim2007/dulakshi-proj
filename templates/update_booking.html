@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Update Booking</title>
+</head>
+
+<body>
+    <h2>Update Booking #{{ booking.id }}</h2>
+    <form method="POST">
+        <label>New Travel Date:</label>
+        <input type="date" name="travel_date" value="{{ booking.travel_date }}" required><br><br>
+
+        <label>New Seat Type:</label>
+        <select name="seat_type_id">
+            {% for seat in seat_types %}
+            <option value="{{ seat.id }}" {% if seat.id==booking.seat_type_id %}selected{% endif %}>
+                {{ seat.type_name }}
+            </option>
+            {% endfor %}
+        </select><br><br>
+
+        <button type="submit">Update Booking</button>
+    </form>
+
+    <br><a href="/my-bookings">Cancel</a>
+</body>
+
+</html>

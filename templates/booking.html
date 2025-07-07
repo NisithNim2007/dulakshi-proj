@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h2>Make a Booking</h2>
+    <form method="POST">
+        <label>Travel Date:</label>
+        <input type="date" name="travel_date" required><br><br>
+
+        <label>Journey:</label>
+        <select name="journey_id">
+            {% for j in journeys %}
+                <option value="{{ j.id }}">{{ j.departure_city }} to {{ j.arrival_city }} ({{ j.base_fare }} GBP)</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label>Seat Type:</label>
+        <select name="seat_type_id">
+            {% for s in seats %}
+                <option value="{{ s.id }}">{{ s.type_name }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <button type="submit">Book Now</button>
+    </form>
+
+</body>
+
+</html>

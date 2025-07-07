@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My Bookings</title>
+</head>
+
+<body>
+    <h2>My Bookings</h2>
+    <a href="/dashboard">← Back to Dashboard</a><br><br>
+
+    {% if bookings %}
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>ID</th>
+            <th>Journey</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Seat Type</th>
+            <th>Price</th>
+            <th>Status</th>
+        </tr>
+        {% for b in bookings %}
+        <tr>
+            <td>{{ b.id }}</td>
+            <td>{{ b.departure_city }} → {{ b.arrival_city }}</td>
+            <td>{{ b.travel_date }}</td>
+            <td>{{ b.departure_time }} → {{ b.arrival_time }}</td>
+            <td>{{ b.seat_type }}</td>
+            <td>£{{ b.final_price }}</td>
+            <td>
+                {% if b.status == 'paid' %}
+                <form action="{{ url_for('cancel_booking', booking_id=b.id) }}" method="POST"
+                    onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                    <button type="submit">Cancel</button>
+                    <button><a href="{{ url_for('update_booking', booking_id=b.id) }}">Update</a></button>
+                </form>
+                {% else %}
+                Cancelled
+                {% endif %}
+            </td>
+
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No bookings found.</p>
+    {% endif %}
+</body>
+
+</html>

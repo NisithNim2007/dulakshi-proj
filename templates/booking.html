@@ -3,34 +3,43 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Make a Booking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body>
+<body class="navbar-page booking-page">
     {% include 'navbar.html' %}
-    <h2>Make a Booking</h2>
-    <form method="POST">
-        <label>Travel Date:</label>
-        <input type="date" name="travel_date" required><br><br>
 
-        <label>Journey:</label>
-        <select name="journey_id">
-            {% for j in journeys %}
-                <option value="{{ j.id }}">{{ j.departure_city }} to {{ j.arrival_city }} ({{ j.base_fare }} GBP)</option>
-            {% endfor %}
-        </select><br><br>
+    <div class="booking-container">
+        <h1>✈️ Book Your Journey</h1>
+        <form method="POST" class="booking-form">
+            <div class="form-group">
+                <label>Travel Date:</label>
+                <input type="date" name="travel_date" required>
+            </div>
 
-        <label>Seat Type:</label>
-        <select name="seat_type_id">
-            {% for s in seats %}
-                <option value="{{ s.id }}">{{ s.type_name }}</option>
-            {% endfor %}
-        </select><br><br>
+            <div class="form-group">
+                <label>Journey:</label>
+                <select name="journey_id" required>
+                    {% for j in journeys %}
+                        <option value="{{ j.id }}">{{ j.departure_city }} → {{ j.arrival_city }} (£{{ j.base_fare }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <button type="submit">Book Now</button>
-    </form>
+            <div class="form-group">
+                <label>Seat Type:</label>
+                <select name="seat_type_id" required>
+                    {% for s in seats %}
+                        <option value="{{ s.id }}">{{ s.type_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
+            <button type="submit" class="btn-book">Book Now</button>
+        </form>
+    </div>
 </body>
 
 </html>

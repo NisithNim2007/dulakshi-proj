@@ -72,7 +72,7 @@ class Discount(db.Model):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', show_minimal_nav=True)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -103,10 +103,7 @@ def login():
             session['role'] = user.role
 
             # 👇 Redirect based on role
-            if user.role == 'admin':
-                return redirect('/admin')
-            else:
-                return redirect('/dashboard')
+            return redirect('/dashboard')
         else:
             return 'Invalid credentials'
 
@@ -466,14 +463,7 @@ def update_booking(booking_id):
 @app.route('/admin')
 @admin_required
 def admin_dashboard():
-    return """
-        <h2>Admin Dashboard</h2>
-        <button><a href='/admin/users'>View Users</a></button><br>
-        <button><a href='/admin/bookings'>View All Bookings</a></button><br>
-        <button><a href='/admin/journeys'>Manage Journeys</a></button><br>
-        <button><a href='/admin/reports'>View Reports</a></button><br>
-        <button><a href='/logout'>Logout</a></button>
-    """
+    return redirect('/dashboard')
 
 @app.route('/admin/users')
 @admin_required

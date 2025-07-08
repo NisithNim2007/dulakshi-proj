@@ -11,25 +11,38 @@
 <body class="navbar-page">
     <!-- templates/navbar.html -->
     <nav>
-        <div>
-            <a href="/">Home</a>
-            <a href="/dashboard">Dashboard</a>
-            {% if session.get('role') == 'admin' %}
-            <a href="/admin">Admin Panel</a>
-            {% endif %}
-            <a href="/booking">Book</a>
-            <a href="/my-bookings">My Bookings</a>
-        </div>
-        <div class="log">
-            {% if session.get('user_id') %}
-            <a href="/logout">Logout ({{ session['user_name'] }})</a>
-            {% else %}
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
-            {% endif %}
+        <div class="nav-container">
+            <!-- Hamburger icon -->
+            <div class="hamburger" onclick="toggleNavbar()">☰</div>
+
+            <!-- Links -->
+            <div class="nav-links" id="navLinks">
+                {% if show_minimal_nav %}
+                    <a href="/">Home</a>
+                    <a href="/login">Login</a>
+                    <a href="/register">Register</a>
+                {% else %}
+                    <a href="/">Home</a>
+                    <a href="/dashboard">Dashboard</a>
+                    <a href="/booking">Book</a>
+                    <a href="/my-bookings">My Bookings</a>
+
+                    {% if session.get('user_id') %}
+                        <a href="/logout">Logout ({{ session['user_name'] }})</a>
+                    {% else %}
+                        <a href="/login">Login</a>
+                        <a href="/register">Register</a>
+                    {% endif %}
+                {% endif %}
+            </div>
         </div>
     </nav>
 
+    <script>
+        function toggleNavbar() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+    </script>
 </body>
 
 </html>

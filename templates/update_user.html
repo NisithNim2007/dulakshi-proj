@@ -3,23 +3,32 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Update User Password</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body>
+<body class="navbar-page admin-password-page">
     {% include 'navbar.html' %}
-    <h2>Update User Password</h2>
-    <form method="POST">
-        <label>User Email:</label><br>
-        <input type="email" name="email" required><br><br>
 
-        <label>New Password:</label><br>
-        <input type="password" name="password" required><br><br>
+    <div class="admin-password-container">
+        <h1>🔐 Update User Password</h1>
 
-        <button type="submit">Update Password</button>
-    </form>
+        <form method="POST" class="admin-password-form">
+            <div class="form-group">
+                <label for="email">User Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
 
+            <div class="form-group">
+                <label for="password">New Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn-update-password">Update Password</button>
+        </form>
+
+        <a href="/admin/users" class="back-link">← Back to Users</a>
+    </div>
 </body>
 
 </html>

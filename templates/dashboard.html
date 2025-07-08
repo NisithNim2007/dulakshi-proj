@@ -1,21 +1,39 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+    <meta charset="UTF-8">
     <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+
+<body class="dashboard-page">
     {% include 'navbar.html' %}
 
-    <h2>Welcome, {{ session['user_name'] }}!</h2>
+    <div class="dashboard-container">
+        <h1>Welcome, {{ session['user_name'] }}!</h1>
 
-    <ul>
-        <li><a href="/booking">Make a Booking</a></li>
-        <li><a href="/my-bookings">View My Bookings</a></li>
-        <li><a href="/profile">Edit Profile</a></li>
-        <li><a href="/change-password">Change Password</a></li>
+        <!-- 👥 User Section -->
+        <h2>Your Panel</h2>
+        <div class="dashboard-grid">
+            <a href="/booking" class="dash-card">✈️ Make a Booking</a>
+            <a href="/my-bookings" class="dash-card">📋 View My Bookings</a>
+            <a href="/profile" class="dash-card">🧑 Edit Profile</a>
+            <a href="/change-password" class="dash-card">🔐 Change Password</a>
+        </div>
+
+        <!-- 🔐 Admin Section -->
         {% if session['role'] == 'admin' %}
-            <li><a href="/admin">Go to Admin Panel</a></li>
+            <h2>Admin Tools</h2>
+            <div class="dashboard-grid">
+                <a href="/admin/users" class="dash-card admin-link">👥 View Users</a>
+                <a href="/admin/bookings" class="dash-card admin-link">📋 All Bookings</a>
+                <a href="/admin/journeys" class="dash-card admin-link">🛣 Manage Journeys</a>
+                <a href="/admin/reports" class="dash-card admin-link">📊 View Reports</a>
+            </div>
         {% endif %}
-    </ul>
+    </div>
+
 </body>
+
 </html>

@@ -1,30 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
     <title>Update Booking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body>
+<body class="navbar-page update-page">
     {% include 'navbar.html' %}
-    <h2>Update Booking #{{ booking.id }}</h2>
-    <form method="POST">
-        <label>New Travel Date:</label>
-        <input type="date" name="travel_date" value="{{ booking.travel_date }}" required><br><br>
 
-        <label>New Seat Type:</label>
-        <select name="seat_type_id">
-            {% for seat in seat_types %}
-            <option value="{{ seat.id }}" {% if seat.id==booking.seat_type_id %}selected{% endif %}>
-                {{ seat.type_name }}
-            </option>
-            {% endfor %}
-        </select><br><br>
+    <div class="update-container">
+        <h1>🔄 Update Booking #{{ booking.id }}</h1>
 
-        <button type="submit">Update Booking</button>
-    </form>
+        <form method="POST" class="update-form">
+            <div class="form-group">
+                <label for="travel_date">New Travel Date:</label>
+                <input type="date" name="travel_date" id="travel_date" value="{{ booking.travel_date }}" required>
+            </div>
 
-    <br><a href="/my-bookings">Cancel</a>
+            <div class="form-group">
+                <label for="seat_type_id">New Seat Type:</label>
+                <select name="seat_type_id" id="seat_type_id" required>
+                    {% for seat in seat_types %}
+                    <option value="{{ seat.id }}" {% if seat.id==booking.seat_type_id %}selected{% endif %}>
+                        {{ seat.type_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn-update-book">✅ Update Booking</button>
+        </form>
+        <div class="cen">
+            <a href="/my-bookings" class="back-link">← Cancel and go back</a>
+        </div>
+    </div>
 </body>
 
 </html>

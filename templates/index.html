@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>HT Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <title>Horizon Travels</title>
 </head>
-<body>
+
+<body class="index-page">
   {% include 'navbar.html' %}
-  <h1>Welcome to Horizon Travels</h1>
-  <a href="/login">Login</a> | <a href="/register">Register</a>
+
+  <div class="hero">
+    <h1>Welcome to Horizon Travels</h1>
+    <p>Plan your perfect journey with comfort and style.</p>
+    <div class="hero-buttons">
+      <a href="{{ url_for('login') }}" class="btn-login">Login</a>
+      <a href="{{ url_for('register') }}" class="btn-register">Register</a>
+    </div>
+  </div>
 </body>
+
 </html>

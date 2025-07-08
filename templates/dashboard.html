@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <h2>Welcome, {{ session['user_name'] }}!</h2>
+
+    <ul>
+        <li><a href="/booking">Make a Booking</a></li>
+        <li><a href="/my-bookings">View My Bookings</a></li>
+        <li><a href="/profile">Edit Profile</a></li>
+        <li><a href="/change-password">Change Password</a></li>
+        {% if session['role'] == 'admin' %}
+            <li><a href="/admin">Go to Admin Panel</a></li>
+        {% endif %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booking Receipt</title>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h2>Horizon Travels - Booking Receipt</h2>
+
+    <p><strong>Booking ID:</strong> {{ booking.Booking.id }}</p>
+    <p><strong>Name:</strong> {{ booking.User.name }}</p>
+    <p><strong>Email:</strong> {{ booking.User.email }}</p>
+    <p><strong>From:</strong> {{ booking.Journey.departure_city }}</p>
+    <p><strong>To:</strong> {{ booking.Journey.arrival_city }}</p>
+    <p><strong>Departure Time:</strong> {{ booking.Journey.departure_time }}</p>
+    <p><strong>Arrival Time:</strong> {{ booking.Journey.arrival_time }}</p>
+    <p><strong>Travel Date:</strong> {{ booking.Booking.travel_date }}</p>
+    <p><strong>Seat Type:</strong> {{ booking.SeatType.type_name }}</p>
+    <p><strong>Total Price:</strong> £{{ booking.Booking.final_price }}</p>
+    <p><strong>Status:</strong> {{ booking.Booking.status }}</p>
+
+    <br>
+    <form action="{{ url_for('download_receipt', booking_id=booking.Booking.id) }}" method="get">
+        <button type="submit">📄 Download PDF Receipt</button>
+    </form>
+
+    <br>
+    <a href="/my-bookings">← Back to My Bookings</a>
+</body>
+</html>

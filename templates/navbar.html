@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Document</title>
+</head>
+
+<body class="navbar-page">
+    <!-- templates/navbar.html -->
+    <nav>
+        <div>
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            {% if session.get('role') == 'admin' %}
+            <a href="/admin">Admin Panel</a>
+            {% endif %}
+            <a href="/booking">Book</a>
+            <a href="/my-bookings">My Bookings</a>
+        </div>
+        <div class="log">
+            {% if session.get('user_id') %}
+            <a href="/logout">Logout ({{ session['user_name'] }})</a>
+            {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+</body>
+
+</html>

@@ -3,6 +3,11 @@ from flask_sqlalchemy import SQLAlchemy
 from config import *
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date
+from flask import make_response
+from reportlab.pdfgen import canvas
+from io import BytesIO
+from smtplib import SMTP
+from email.message import EmailMessage
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -117,7 +122,7 @@ def logout():
 def dashboard():
     if 'user_id' not in session:
         return redirect('/login')
-    return f"Welcome, {session['user_name']}! <a href='/logout'>Logout</a> <br><br> <a href='/booking'>Make a Booking</a> <br><br> <a href='/my-bookings'>View My Bookings</a>"
+    return render_template('dashboard.html')
 
 @app.route('/booking', methods=['GET', 'POST'])
 def booking():
@@ -150,27 +155,188 @@ def booking():
             .first()
         )
 
-        if discount_rule:
-            discount = discount_rule.discount_percent / 100
-        else:
-            discount = 0
+        discount = discount_rule.discount_percent / 100 if discount_rule else 0
+        discount_amount = base_price*discount
+        final_price = round(base_price - discount_amount, 2)
 
-        final_price = base_price * (1 - discount)
-
-        new_booking = Booking(
-            user_id=session['user_id'],
-            journey_id=journey_id,
-            seat_type_id=seat_type_id,
+        return render_template(
+            'booking_summary.html',
+            journey=journey,
+            seat=seat,
             travel_date=travel_date,
-            final_price=round(final_price, 2)
+            base_price=journey.base_fare,
+            seat_multiplier=seat.multiplier,
+            discount_percent=int(discount * 100),
+            discount_amount=round(discount_amount, 2),
+            final_price=final_price,
+            journey_id=journey_id,
+            seat_type_id=seat.id
         )
 
-        db.session.add(new_booking)
-        db.session.commit()
-
-        return f"<h3>Booking Confirmed!</h3><p>Total: £{round(final_price, 2)}<br><a href='/dashboard'>Go to Dashboard</a>"
-
     return render_template('booking.html', journeys=journeys, seats=seats)
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    user = User.query.get(session['user_id'])
+
+    # Profile update
+    if request.method == 'POST':
+        form_type = request.form.get('form_type')
+
+        if form_type == 'profile':
+            new_name = request.form['name']
+            new_email = request.form['email']
+
+            # Check for email conflict
+            existing = User.query.filter(User.email == new_email, User.id != user.id).first()
+            if existing:
+                return "Email already in use."
+
+            user.name = new_name
+            user.email = new_email
+            session['user_name'] = new_name
+            db.session.commit()
+            return "Profile updated. <a href='/dashboard'>Return to Dashboard</a>"
+
+        elif form_type == 'password':
+            current = request.form['current_password']
+            new = request.form['new_password']
+            confirm = request.form['confirm_password']
+
+            if not check_password_hash(user.password, current):
+                return "Current password incorrect."
+            if new != confirm:
+                return "New passwords do not match."
+
+            user.password = generate_password_hash(new)
+            db.session.commit()
+            return "Password changed. <a href='/dashboard'>Return to Dashboard</a>"
+
+    return render_template('profile.html', user=user)
+
+
+def send_email(user_email, pdf_data, booking_id):
+    msg = EmailMessage()
+    msg['Subject']= f"Horizon Travels Booking Receipt #{booking_id}"
+    msg['From'] = app.config['MAIL_USERNAME']
+    msg['To'] = user_email
+    msg.set_content("Thank you for your booking! Please Find your receipt attached.")
+
+    msg.add_attachment(pdf_data, maintype='application', subtype='pdf', filename=f'receipt_{booking_id}.pdf')
+    
+    with SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT']) as smtp:
+        smtp.starttls()
+        smtp.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+        smtp.send_message(msg)
+
+@app.route('/confirm-booking', methods=['POST'])
+def confirm_booking():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    booking = Booking(
+        user_id=session['user_id'],
+        journey_id=request.form['journey_id'],
+        seat_type_id=request.form['seat_type_id'],
+        travel_date=datetime.strptime(request.form['travel_date'], '%Y-%m-%d').date(),
+        final_price=request.form['final_price']
+    )
+    db.session.add(booking)
+    db.session.commit()
+
+    #Generate PDF
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer)
+
+    user = User.query.get(session['user_id'])
+    journey = Journey.query.get(booking.journey_id)
+    seat = SeatType.query.get(booking.seat_type_id)
+
+    pdf.drawString(100, 800, "Horizon Travels - Booking Receipt")
+    pdf.drawString(100, 780, f"Booking ID: {booking.id}")
+    pdf.drawString(100, 765, f"Name: {user.name}")
+    pdf.drawString(100, 750, f"Email: {user.email}")
+    pdf.drawString(100, 735, f"Route: {journey.departure_city} → {journey.arrival_city}")
+    pdf.drawString(100, 720, f"Departure: {journey.departure_time}")
+    pdf.drawString(100, 705, f"Arrival: {journey.arrival_time}")
+    pdf.drawString(100, 690, f"Travel Date: {booking.travel_date}")
+    pdf.drawString(100, 675, f"Seat Type: {seat.type_name}")
+    pdf.drawString(100, 660, f"Total Price: £{booking.final_price}")
+    pdf.showPage()
+    pdf.save()
+    buffer.seek(0)
+
+    send_email(user.email, buffer.read(), booking.id)
+
+    return redirect(f'/receipt/{booking.id}')
+
+@app.route('/receipt/<int:booking_id>')
+def receipt(booking_id):
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    booking = db.session.query(
+        Booking,
+        Journey,
+        SeatType,
+        User
+    ).join(Journey, Booking.journey_id == Journey.id)\
+     .join(SeatType, Booking.seat_type_id == SeatType.id)\
+     .join(User, Booking.user_id == User.id)\
+     .filter(Booking.id == booking_id, Booking.user_id == session['user_id'])\
+     .first()
+
+    if not booking:
+        return "Booking not found or unauthorized.", 404
+
+    return render_template('receipt.html', booking=booking)
+
+@app.route('/download-receipt/<int:booking_id>')
+def download_receipt(booking_id):
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    booking = db.session.query(
+        Booking,
+        Journey,
+        SeatType,
+        User
+    ).join(Journey, Booking.journey_id == Journey.id)\
+     .join(SeatType, Booking.seat_type_id == SeatType.id)\
+     .join(User, Booking.user_id == User.id)\
+     .filter(Booking.id == booking_id, Booking.user_id == session['user_id'])\
+     .first()
+
+    if not booking:
+        return "Unauthorized", 403
+
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer)
+
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(100, 800, "Horizon Travels - Booking Receipt")
+    pdf.drawString(100, 780, f"Booking ID: {booking.Booking.id}")
+    pdf.drawString(100, 765, f"Name: {booking.User.name}")
+    pdf.drawString(100, 750, f"Email: {booking.User.email}")
+    pdf.drawString(100, 735, f"Route: {booking.Journey.departure_city} → {booking.Journey.arrival_city}")
+    pdf.drawString(100, 720, f"Departure: {booking.Journey.departure_time}")
+    pdf.drawString(100, 705, f"Arrival: {booking.Journey.arrival_time}")
+    pdf.drawString(100, 690, f"Travel Date: {booking.Booking.travel_date}")
+    pdf.drawString(100, 675, f"Seat Type: {booking.SeatType.type_name}")
+    pdf.drawString(100, 660, f"Total Price: £{booking.Booking.final_price}")
+    pdf.drawString(100, 645, f"Status: {booking.Booking.status}")
+
+    pdf.showPage()
+    pdf.save()
+
+    buffer.seek(0)
+    return make_response(buffer.read(), {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': f'attachment; filename=receipt_{booking.Booking.id}.pdf'
+    })
 
 @app.route('/my-bookings')
 def my_bookings():

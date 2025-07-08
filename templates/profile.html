@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Edit Profile</title>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+    <h2>Edit Your Profile</h2>
+    <form method="POST">
+        <input type="hidden" name="form_type" value="profile">
+        <label>Name:</label>
+        <input type="text" name="name" value="{{ user.name }}" required><br><br>
+
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ user.email }}" required><br><br>
+
+        <button type="submit">Update Profile</button>
+    </form>
+
+    <hr>
+
+    <h2>Change Password</h2>
+    <form method="POST">
+        <input type="hidden" name="form_type" value="password">
+        <label>Current Password:</label><br>
+        <input type="password" name="current_password" required><br><br>
+
+        <label>New Password:</label><br>
+        <input type="password" name="new_password" required><br><br>
+
+        <label>Confirm New Password:</label><br>
+        <input type="password" name="confirm_password" required><br><br>
+
+        <button type="submit">Change Password</button>
+    </form>
+
+    <br><a href="/dashboard">← Back to Dashboard</a>
+</body>
+
+</html>

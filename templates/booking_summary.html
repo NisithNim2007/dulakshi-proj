@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Booking Summary</title>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+    <h2>Booking Summary</h2>
+    <ul>
+        <li>From: {{ journey.departure_city }}</li>
+        <li>To: {{ journey.arrival_city }}</li>
+        <li>Date: {{ travel_date }}</li>
+        <li>Base Fare: £{{ base_price }}</li>
+        <li>Seat Type: {{ seat.type_name }} (x{{ seat_multiplier }})</li>
+        <li>Discount: {{ discount_percent }}% (−£{{ discount_amount }})</li>
+        <li><strong>Total Price: £{{ final_price }}</strong></li>
+    </ul>
+    <form method="POST" action="/confirm-booking">
+        <input type="hidden" name="journey_id" value="{{ journey_id }}">
+        <input type="hidden" name="seat_type_id" value="{{ seat.id }}">
+        <input type="hidden" name="travel_date" value="{{ travel_date }}">
+        <input type="hidden" name="final_price" value="{{ final_price }}">
+        <button type="submit">Confirm Booking</button>
+    </form>
+    <br><a href="/booking">← Go Back</a>
+</body>
+
+</html>

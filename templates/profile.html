@@ -1,42 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
     <title>Edit Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body>
+<body class="profile-page">
     {% include 'navbar.html' %}
-    <h2>Edit Your Profile</h2>
-    <form method="POST">
-        <input type="hidden" name="form_type" value="profile">
-        <label>Name:</label>
-        <input type="text" name="name" value="{{ user.name }}" required><br><br>
+    <div class="page-contenst">
+        <div class="profile-wrapper">
+            {% if selected_tab == 'edit' %}
+            <h2>Edit Your Profile</h2>
+            <form method="POST" class="profile-form">
+                <input type="hidden" name="form_type" value="profile">
 
-        <label>Email:</label>
-        <input type="email" name="email" value="{{ user.email }}" required><br><br>
+                <label>Name:</label>
+                <input type="text" name="name" value="{{ user.name }}" required>
 
-        <button type="submit">Update Profile</button>
-    </form>
+                <label>Email:</label>
+                <input type="email" name="email" value="{{ user.email }}" required>
 
-    <hr>
+                <button type="submit" class="btn-save">Update Profile</button>
+            </form>
+            {% endif %}
 
-    <h2>Change Password</h2>
-    <form method="POST">
-        <input type="hidden" name="form_type" value="password">
-        <label>Current Password:</label><br>
-        <input type="password" name="current_password" required><br><br>
+            <hr>
+            {% if selected_tab == 'password' %}
+            <h2>Change Password</h2>
+            <form method="POST" class="profile-form">
+                <input type="hidden" name="form_type" value="password">
 
-        <label>New Password:</label><br>
-        <input type="password" name="new_password" required><br><br>
+                <label>Current Password:</label>
+                <input type="password" name="current_password" required>
 
-        <label>Confirm New Password:</label><br>
-        <input type="password" name="confirm_password" required><br><br>
+                <label>New Password:</label>
+                <input type="password" name="new_password" required>
 
-        <button type="submit">Change Password</button>
-    </form>
+                <label>Confirm New Password:</label>
+                <input type="password" name="confirm_password" required>
 
-    <br><a href="/dashboard">← Back to Dashboard</a>
+                <button type="submit" class="btn-save">Change Password</button>
+            </form>
+            {% endif %}
+            <div class="back-link">
+                <a href="/dashboard">← Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

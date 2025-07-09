@@ -179,7 +179,10 @@ def profile():
 
     user = User.query.get(session['user_id'])
 
-    # Profile update
+    # Determine active tab
+    selected_tab = request.args.get('tab', 'edit')  # default to 'edit'
+
+    # Handle form submission
     if request.method == 'POST':
         form_type = request.form.get('form_type')
 
@@ -196,7 +199,9 @@ def profile():
             user.email = new_email
             session['user_name'] = new_name
             db.session.commit()
-            return "Profile updated. <a href='/dashboard'>Return to Dashboard</a>"
+
+            # Stay on profile tab
+            return redirect(url_for('profile', tab='edit'))
 
         elif form_type == 'password':
             current = request.form['current_password']
@@ -210,9 +215,12 @@ def profile():
 
             user.password = generate_password_hash(new)
             db.session.commit()
-            return "Password changed. <a href='/dashboard'>Return to Dashboard</a>"
 
-    return render_template('profile.html', user=user)
+            # Stay on password tab
+            return redirect(url_for('profile', tab='password'))
+
+    return render_template('profile.html', user=user, selected_tab=selected_tab)
+
 
 
 def send_email(user_email, pdf_data, booking_id):

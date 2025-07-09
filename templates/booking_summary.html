@@ -7,31 +7,32 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body class="navbar-page summary-page">
+<body class="summary-page">
     {% include 'navbar.html' %}
+    <div class="page-content">
+        <div class="summary-container">
+            <h1>📋 Booking Summary</h1>
 
-    <div class="summary-container">
-        <h1>📋 Booking Summary</h1>
+            <div class="summary-box">
+                <p><strong>From:</strong> {{ journey.departure_city }}</p>
+                <p><strong>To:</strong> {{ journey.arrival_city }}</p>
+                <p><strong>Date:</strong> {{ travel_date }}</p>
+                <p><strong>Base Fare:</strong> £{{ base_price }}</p>
+                <p><strong>Seat Type:</strong> {{ seat.type_name }} (x{{ seat_multiplier }})</p>
+                <p><strong>Discount:</strong> {{ discount_percent }}% (−£{{ discount_amount }})</p>
+                <p class="total"><strong>Total Price:</strong> £{{ final_price }}</p>
+            </div>
 
-        <div class="summary-box">
-            <p><strong>From:</strong> {{ journey.departure_city }}</p>
-            <p><strong>To:</strong> {{ journey.arrival_city }}</p>
-            <p><strong>Date:</strong> {{ travel_date }}</p>
-            <p><strong>Base Fare:</strong> £{{ base_price }}</p>
-            <p><strong>Seat Type:</strong> {{ seat.type_name }} (x{{ seat_multiplier }})</p>
-            <p><strong>Discount:</strong> {{ discount_percent }}% (−£{{ discount_amount }})</p>
-            <p class="total"><strong>Total Price:</strong> £{{ final_price }}</p>
+            <form method="POST" action="/confirm-booking">
+                <input type="hidden" name="journey_id" value="{{ journey_id }}">
+                <input type="hidden" name="seat_type_id" value="{{ seat.id }}">
+                <input type="hidden" name="travel_date" value="{{ travel_date }}">
+                <input type="hidden" name="final_price" value="{{ final_price }}">
+                <button type="submit" class="btn-book">✅ Confirm Booking</button>
+            </form>
+
+            <a href="/booking" class="back-link">← Go Back</a>
         </div>
-
-        <form method="POST" action="/confirm-booking">
-            <input type="hidden" name="journey_id" value="{{ journey_id }}">
-            <input type="hidden" name="seat_type_id" value="{{ seat.id }}">
-            <input type="hidden" name="travel_date" value="{{ travel_date }}">
-            <input type="hidden" name="final_price" value="{{ final_price }}">
-            <button type="submit" class="btn-book">✅ Confirm Booking</button>
-        </form>
-
-        <a href="/booking" class="back-link">← Go Back</a>
     </div>
 </body>
 

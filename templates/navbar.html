@@ -5,43 +5,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Document</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <title>Navbar</title>
 </head>
 
 <body class="navbar-page">
-    <!-- templates/navbar.html -->
-    <nav>
-        <div class="nav-container">
-            <!-- Hamburger icon -->
-            <div class="hamburger" onclick="toggleNavbar()">☰</div>
+    <nav class="clean-navbar">
+        <div class="icon-links">
+            {% if show_minimal_nav %}
+            <!-- ✅ Main floating nav: Home + User -->
+            <a href="/" class="nav-icon" data-label="Home"><i class='bx bxs-home'></i></a>
+            <button class="nav-icon user-toggle" data-label="User" onclick="toggleSecondaryNavbar()">
+                <i class='bx bxs-user'></i>
+            </button>
+            {% else %}
+            <!-- ✅ Full nav for other pages -->
+            <a href="/" class="nav-icon" data-label="Home"><i class='bx bxs-home'></i></a>
+            <a href="/dashboard" class="nav-icon" data-label="Dashboard"><i class='bx bxs-dashboard'></i></a>
+            <a href="/booking" class="nav-icon" data-label="Book"><i class='bx bxs-plane-alt'></i></a>
+            <a href="/my-bookings" class="nav-icon" data-label="Trips"><i class='bx bxs-receipt'></i></a>
+            {% if session.get('user_id') %}
+            <a href="/logout" class="nav-icon" data-label="Logout"><i class='bx bxs-log-out'></i></a>
+            {% else %}
+            <a href="/login" class="nav-icon" data-label="Login"><i class='bx bxs-lock'></i></a>
+            <a href="/register" class="nav-icon" data-label="Register"><i class='bx bxs-user-plus'></i></a>
+            {% endif %}
+            {% endif %}
+        </div>
+    </nav>
 
-            <!-- Links -->
-            <div class="nav-links" id="navLinks">
-                {% if show_minimal_nav %}
-                    <a href="/">Home</a>
-                    <a href="/login">Login</a>
-                    <a href="/register">Register</a>
-                {% else %}
-                    <a href="/">Home</a>
-                    <a href="/dashboard">Dashboard</a>
-                    <a href="/booking">Book</a>
-                    <a href="/my-bookings">My Bookings</a>
-
-                    {% if session.get('user_id') %}
-                        <a href="/logout">Logout ({{ session['user_name'] }})</a>
-                    {% else %}
-                        <a href="/login">Login</a>
-                        <a href="/register">Register</a>
-                    {% endif %}
-                {% endif %}
-            </div>
+    {% if show_minimal_nav %}
+    <!-- SECOND NAVBAR: FLOATING RIGHT -->
+    <nav class="clean-navbar secondary-navbar" id="secondaryNavbar">
+        <div class="icon-links">
+            <a href="/login" class="nav-icon" data-label="Login"><i class='bx bxs-lock'></i></a>
+            <a href="/register" class="nav-icon" data-label="Register"><i class='bx bxs-user-plus'></i></a>
         </div>
     </nav>
 
     <script>
-        function toggleNavbar() {
-            document.getElementById('navLinks').classList.toggle('active');
+        function toggleSecondaryNavbar() {
+            const nav = document.getElementById("secondaryNavbar");
+            nav.classList.toggle("show");
         }
+    </script>
+    {% endif %}
+    <script>
+        let lastScrollTop = 0;
+        const navbar = document.querySelector('.clean-navbar');
+
+        window.addEventListener('scroll', function () {
+            const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+
+            if (currentScroll > lastScrollTop && currentScroll > 80) {
+                // Scrolling down
+                navbar.classList.add('nav-hidden');
+            } else {
+                // Scrolling up
+                navbar.classList.remove('nav-hidden');
+            }
+
+            lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+        });
     </script>
 </body>
 

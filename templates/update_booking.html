@@ -7,33 +7,34 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body class="navbar-page update-page">
+<body class="update-page">
     {% include 'navbar.html' %}
+    <div class="page-content">
+        <div class="update-container">
+            <h1>🔄 Update Booking #{{ booking.id }}</h1>
 
-    <div class="update-container">
-        <h1>🔄 Update Booking #{{ booking.id }}</h1>
+            <form method="POST" class="update-form">
+                <div class="form-group">
+                    <label for="travel_date">New Travel Date:</label>
+                    <input type="date" name="travel_date" id="travel_date" value="{{ booking.travel_date }}" required>
+                </div>
 
-        <form method="POST" class="update-form">
-            <div class="form-group">
-                <label for="travel_date">New Travel Date:</label>
-                <input type="date" name="travel_date" id="travel_date" value="{{ booking.travel_date }}" required>
+                <div class="form-group">
+                    <label for="seat_type_id">New Seat Type:</label>
+                    <select name="seat_type_id" id="seat_type_id" required>
+                        {% for seat in seat_types %}
+                        <option value="{{ seat.id }}" {% if seat.id==booking.seat_type_id %}selected{% endif %}>
+                            {{ seat.type_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-update-book">✅ Update Booking</button>
+            </form>
+            <div class="cen">
+                <a href="/my-bookings" class="back-link">← Cancel and go back</a>
             </div>
-
-            <div class="form-group">
-                <label for="seat_type_id">New Seat Type:</label>
-                <select name="seat_type_id" id="seat_type_id" required>
-                    {% for seat in seat_types %}
-                    <option value="{{ seat.id }}" {% if seat.id==booking.seat_type_id %}selected{% endif %}>
-                        {{ seat.type_name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <button type="submit" class="btn-update-book">✅ Update Booking</button>
-        </form>
-        <div class="cen">
-            <a href="/my-bookings" class="back-link">← Cancel and go back</a>
         </div>
     </div>
 </body>

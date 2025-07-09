@@ -1,95 +1,156 @@
 @import url('https://fonts.googleapis.com/css2?family=Ancizar+Serif:ital,wght@0,300..900;1,300..900&family=Paytone+One&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
-nav{
+
+body.navbar-page * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.page-content{
+    padding-top: 80px;
+}
+.clean-navbar {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: #193948;
-    padding: 10px 20px;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #193948;
+    padding: 12px 25px;
+    border-radius: 50px;
+    display: flex;
+    gap: 25px;
     z-index: 1000;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    transition: top 0.4s ease, opacity 0.4s ease;
+}
+.nav-hidden {
+  top: -100px;   
+  opacity: 0;    
 }
 
-.nav-container{
+.clean-navbar .icon-links {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-}
-.nav-links{
-    display: flex;
-    gap: 15px;
+    gap: 28px;
     align-items: center;
 }
-.nav-links a{
+
+.nav-icon {
+    position: relative;
+    font-size: 28px;
     color: white;
     text-decoration: none;
-    font-weight: 600;
-    font-family: 'Montserrat', sans-serif;
-    transition: all 0.3s ease;
-    position: relative;
-    padding: 8px;
-    white-space: nowrap;
-}
-.nav-links a::after{
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -4px;
-    left: 0;
-    background-color: #FCDC73;
-    transition: width 0.3s ease;
-}
-.nav-links a:hover{
-    color: #FCDC73;
-    transform: scale(1.05);
-}
-.nav-links a:hover::after{
-    width: 100%;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.4s ease;
+    background: transparent;
+    border: none;
+    cursor: pointer;
 }
 
-.hamburger{
+.nav-icon::before {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: white;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: all 0.4s ease;
+    z-index: -1;
+}
+
+.nav-icon:hover::before {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.nav-icon:hover {
+    color: #193948;
+    transform: scale(1.1);
+}
+
+.nav-icon::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 3.5px;
+    font-size: 10px;
+    color: #193948;
+    font-family: 'Montserrat', sans-serif;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.nav-icon:hover::after {
+    opacity: 1;
+}
+
+/* SECONDARY NAVBAR (Hidden by default) */
+.secondary-navbar {
+    position: fixed;
+    top: 20px;
+    left: calc(50% + 120px);
+    /* Move right of the main nav */
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.secondary-navbar.show {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+
+.hamburger {
     display: none;
-    font-size: 28px;
+    font-size: 24px;
     color: white;
     cursor: pointer;
 }
 
-@media (max-width: 768px){
-    .hamburger{
+@media (max-width: 600px) {
+    .hamburger {
         display: block;
     }
-    .nav-links{
+
+    .icon-links {
         display: none;
         flex-direction: column;
-        width: 100%;
-        margin-top: 10px;
-        background-color: #193948;
-        padding: 10px 0;
-        border-radius: 8px;
-        box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+        background: #193948;
+        position: absolute;
+        top: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px 20px;
+        border-radius: 10px;
     }
-    .nav-links.active{
+
+    .icon-links.show {
         display: flex;
     }
-    .nav-links a{
-        padding: 12px 20px;
-        width: 10%;
-    }
 }
-body.navbar-page  {
+
+body.navbar-page {
     padding-top: 70px;
 }
 
 
-body.login-page *{
+body.login-page * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: "Montserrat", sans-serif;
 }
+
 body.login-page {
     display: flex;
     justify-content: center;
@@ -97,6 +158,7 @@ body.login-page {
     min-height: 100vh;
     background-color: #FCDC73;
 }
+
 body.login-page .wrapper {
     width: 420px;
     background-color: white;
@@ -106,20 +168,23 @@ body.login-page .wrapper {
     padding: 30px 40px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
 }
-body.login-page .wrapper h1{
+
+body.login-page .wrapper h1 {
     font-family: 'Paytone One', sans-serif;
     font-size: 36px;
     text-align: center;
     color: #193948;
 }
-body.login-page .wrapper .input-box{
+
+body.login-page .wrapper .input-box {
     position: relative;
     margin: 10px 0;
     width: 100%;
     height: 50px;
     margin: 30px 0;
 }
-body.login-page .input-box input{
+
+body.login-page .input-box input {
     width: 100%;
     height: 100%;
     background: #f7f7f7;
@@ -129,23 +194,27 @@ body.login-page .input-box input{
     color: #193948;
     padding: 15px 20px;
 }
-body.login-page .input-box input::placeholder{
+
+body.login-page .input-box input::placeholder {
     color: #aaa;
 }
-body.login-page .input-box i{
+
+body.login-page .input-box i {
     position: absolute;
     right: 20px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 20px;
 }
-body.login-page .wrapper .remember-forgot{
+
+body.login-page .wrapper .remember-forgot {
     display: flex;
     justify-content: space-between;
     font-size: 14.5px;
     margin: -15px 0 15px;
 }
-body.login-page .wrapper .btn{
+
+body.login-page .wrapper .btn {
     width: 100%;
     height: 45px;
     background: #E76268;
@@ -159,31 +228,38 @@ body.login-page .wrapper .btn{
     font-weight: bold;
     transition: background 0.3s;
 }
-body.login-page .wrapper .btn:hover{
+
+body.login-page .wrapper .btn:hover {
     background: #d44d52;
 }
+
 body.login-page .wrapper .register-link {
     font-size: 14.5px;
     text-align: center;
     margin: 20px 0 15px;
 }
-body.login-page .wrapper .register-link p{
+
+body.login-page .wrapper .register-link p {
     color: #193948;
 }
-body.login-page .register-link p a{
+
+body.login-page .register-link p a {
     color: #E76268;
     text-decoration: none;
     font-weight: bold;
 }
-body.login-page .register-link p a:hover{
+
+body.login-page .register-link p a:hover {
     text-decoration: underline;
 }
-body.register-page *{
+
+body.register-page * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: "Montserrat", sans-serif;
 }
+
 body.register-page {
     display: flex;
     justify-content: center;
@@ -191,7 +267,8 @@ body.register-page {
     min-height: 100vh;
     background-color: #FCDC73;
 }
-body.register-page .wrapper{
+
+body.register-page .wrapper {
     width: 420px;
     background-color: white;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -200,20 +277,23 @@ body.register-page .wrapper{
     padding: 30px 40px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
 }
-body.register-page .wrapper h1{
+
+body.register-page .wrapper h1 {
     font-family: 'Paytone One', sans-serif;
     font-size: 36px;
     text-align: center;
     color: #193948;
 }
-body.register-page .wrapper .input-box{
+
+body.register-page .wrapper .input-box {
     position: relative;
     margin: 10px 0;
     width: 100%;
     height: 50px;
     margin: 30px 0;
 }
-body.register-page .input-box input{
+
+body.register-page .input-box input {
     width: 100%;
     height: 100%;
     background: #f7f7f7;
@@ -223,17 +303,20 @@ body.register-page .input-box input{
     color: #193948;
     padding: 15px 20px;
 }
-body.register-page .input-box input::placeholder{
+
+body.register-page .input-box input::placeholder {
     color: #aaa;
 }
-body.register-page .input-box i{
+
+body.register-page .input-box i {
     position: absolute;
     right: 20px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 20px;
 }
-body.register-page .wrapper .btn{
+
+body.register-page .wrapper .btn {
     width: 100%;
     height: 45px;
     background: #E76268;
@@ -247,47 +330,57 @@ body.register-page .wrapper .btn{
     font-weight: bold;
     transition: background 0.3s;
 }
-body.register-page .wrapper .btn:hover{
+
+body.register-page .wrapper .btn:hover {
     background: #d44d52;
 }
-body.register-page .wrapper .log-link{
+
+body.register-page .wrapper .log-link {
     font-size: 14.5px;
     text-align: center;
     margin: 20px 0 15px;
 }
-body.register-page .wrapper .log-link p{
+
+body.register-page .wrapper .log-link p {
     color: #193948;
 }
-body.register-page .log-link p a{
+
+body.register-page .log-link p a {
     color: #E76268;
     text-decoration: none;
     font-weight: bold;
 }
-body.register-page .log-link p a:hover{
+
+body.register-page .log-link p a:hover {
     text-decoration: underline;
 }
-body.index-page{
+
+body.index-page {
     background-color: #FCDC73;
     font-family: 'Montserrat', sans-serif;
     text-align: center;
     padding-top: 100px;
     color: #193948;
 }
-body.index-page h1{
+
+body.index-page h1 {
     font-family: 'Paytone One', sans-serif;
     font-size: 48px;
     margin-bottom: 10px;
 }
-body.index-page p{
+
+body.index-page p {
     font-size: 18px;
     margin-bottom: 30px;
 }
-body.index-page .hero-buttons{
+
+body.index-page .hero-buttons {
     display: flex;
     justify-content: center;
     gap: 20px;
 }
-body.index-page .hero-buttons a{
+
+body.index-page .hero-buttons a {
     text-decoration: none;
     font-weight: bold;
     padding: 12px 25px;
@@ -295,81 +388,106 @@ body.index-page .hero-buttons a{
     font-size: 16px;
     transition: 0.3s ease;
 }
-body.index-page .btn-login{
+
+body.index-page .btn-login {
     background-color: #E76268;
     color: white;
     border: none;
 }
-body.index-page .btn-login:hover{
+
+body.index-page .btn-login:hover {
     background-color: #d24a51;
 }
-body.index-page .btn-register{
+
+body.index-page .btn-register {
     border: 2px solid #193948;
     color: #193948;
     background: transparent;
 }
-body.index-page .btn-register:hover{
+
+body.index-page .btn-register:hover {
     background-color: #193948;
     color: white;
 }
-body.dashboard-page{
+
+body.dashboard-page {
     background-color: #FCDC73;
     font-family: 'Montserrat', sans-serif;
     padding: 40px 20px;
     text-align: center;
 }
-body.dashboard-page .dashboard-container h1{
+body.dashboard-page .dashboard-container{
+    max-width: 900px;
+    margin: auto;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+body.dashboard-page .dashboard-container h1 {
     font-family: 'Paytone One', sans-serif;
-    font-size: 40px;
-    margin-bottom: 40px;
+    font-size: 36px;
+    margin-bottom: 30px;
     color: #193948;
 }
-body.dashboard-page .dashboard-container h2{
+
+body.dashboard-page .dashboard-container h2 {
     font-family: 'Montserrat', sans-serif;
     font-size: 24px;
     color: #193948;
-    margin-top: 40px;
+    margin: 25px 0 15px;
+}
+body.dashboard-page .dashboard-row{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
     margin-bottom: 20px;
 }
-body.dashboard-page .dashboard-grid{
+body.dashboard-page .center-row{
+    justify-content: center;
+}
+body.dashboard-page .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     max-width: 900px;
     margin: 0 auto 40px auto;
 }
-body.dashboard-page .dash-card{
-    background-color: white;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-    font-size: 18px;
-    color: #193948;
-    font-weight: 600;
+
+body.dashboard-page .dash-card {
+    background-color: #E76268;
+    color: white;
     text-decoration: none;
-    transition: all 0.2s ease;
+    padding: 20px 30px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: background 0.3s ease, transform 0.2s ease;
     text-align: center;
 }
-body.dashboard-page .dash-card:hover{
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-    background-color: #E76268;
-    color: white;
+
+body.dashboard-page .dash-card:hover {
+    transform: scale(1.03);
+    background-color: #d44d52;
 }
-body.dashboard-page .admin-link{
+body.dashboard-page .admin-link {
     background-color: #193948;
-    color: white;
 }
-body.dashboard-page .admin-link:hover{
-    background-color: #E76268;
+
+body.dashboard-page .admin-link:hover {
+    background-color: #102630;
 }
-body.booking-page{
+
+body.booking-page {
     background-color: #FCDC73;
     font-family: 'Montserrat', sans-serif;
     padding: 30px 20px;
     color: #193948;
 }
-body.booking-page .booking-container{
+
+body.booking-page .booking-container {
     max-width: 600px;
     margin: 0 auto;
     background: #fff;
@@ -377,30 +495,35 @@ body.booking-page .booking-container{
     padding: 30px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
-body.booking-page .booking-container h1{
+
+body.booking-page .booking-container h1 {
     font-family: 'Paytone One', sans-serif;
     text-align: center;
     margin-bottom: 30px;
     font-size: 32px;
     color: #193948;
 }
-body.booking-page .booking-form .form-group{
+
+body.booking-page .booking-form .form-group {
     margin-bottom: 20px;
     display: flex;
     flex-direction: column;
 }
-body.booking-page .booking-form label{
+
+body.booking-page .booking-form label {
     font-weight: 600;
     margin-bottom: 6px;
 }
+
 body.booking-page .booking-form input[type="date"],
-body.booking-page .booking-form select{
+body.booking-page .booking-form select {
     padding: 10px 15px;
     font-size: 16px;
     border: 2px solid #ccc;
     border-radius: 8px;
 }
-body.booking-page .btn-book{
+
+body.booking-page .btn-book {
     width: 100%;
     padding: 12px;
     background-color: #E76268;
@@ -412,17 +535,20 @@ body.booking-page .btn-book{
     cursor: pointer;
     transition: background 0.3s ease;
 }
-body.booking-page .btn-book:hover{
+
+body.booking-page .btn-book:hover {
     background-color: #d44d52;
 }
-body.summary-page{
+
+body.summary-page {
     background-color: #FCDC73;
     font-family: 'Montserrat', sans-serif;
     padding: 40px 20px;
     color: #193948;
     text-align: center;
 }
-body.summary-page .summary-container{
+
+body.summary-page .summary-container {
     max-width: 600px;
     margin: 0 auto;
     background-color: white;
@@ -430,23 +556,27 @@ body.summary-page .summary-container{
     padding: 30px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
-body.summary-page .summary-container h1{
+
+body.summary-page .summary-container h1 {
     font-family: 'Paytone One', sans-serif;
     font-size: 32px;
     margin-bottom: 25px;
 }
-body.summary-page .summary-box p{
+
+body.summary-page .summary-box p {
     font-size: 16px;
     margin: 10px 0;
     text-align: left;
 }
-body.summary-page .summary-box .total{
+
+body.summary-page .summary-box .total {
     font-size: 18px;
     color: #E76268;
     font-weight: bold;
     margin-top: 20px;
 }
-body.summary-page .btn-book{
+
+body.summary-page .btn-book {
     width: 100%;
     padding: 12px;
     background-color: #E76268;
@@ -459,27 +589,32 @@ body.summary-page .btn-book{
     margin-top: 20px;
     transition: background 0.3s ease;
 }
-body.summary-page .btn-book:hover{
+
+body.summary-page .btn-book:hover {
     background-color: #d44d52;
 }
-body.summary-page .back-link{
+
+body.summary-page .back-link {
     display: inline-block;
     margin-top: 20px;
     color: #193948;
     text-decoration: none;
     font-weight: 600;
 }
-body.summary-page .back-link:hover{
+
+body.summary-page .back-link:hover {
     text-decoration: underline;
 }
-body.receipt-page{
+
+body.receipt-page {
     background-color: #FCDC73;
     font-family: 'Montserrat', sans-serif;
     padding: 40px 20px;
     color: #193948;
     text-align: center;
 }
-body.receipt-page .receipt-container{
+
+body.receipt-page .receipt-container {
     max-width: 600px;
     margin: 0 auto;
     background-color: white;
@@ -487,32 +622,38 @@ body.receipt-page .receipt-container{
     padding: 30px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
-body.receipt-page .receipt-container h1{
+
+body.receipt-page .receipt-container h1 {
     font-family: 'Paytone One', sans-serif;
     font-size: 32px;
     margin-bottom: 5px;
     color: #193948;
 }
-body.receipt-page .receipt-container h2{
+
+body.receipt-page .receipt-container h2 {
     font-size: 20px;
     margin-bottom: 25px;
     color: #E76268;
 }
-body.receipt-page .receipt-details{
+
+body.receipt-page .receipt-details {
     text-align: left;
     margin-bottom: 30px;
 }
-body.receipt-page .receipt-details p{
+
+body.receipt-page .receipt-details p {
     margin: 10px 0;
     font-size: 16px;
 }
-body.receipt-page .receipt-details .total-price{
+
+body.receipt-page .receipt-details .total-price {
     font-size: 18px;
     font-weight: bold;
     color: #E76268;
     margin-top: 20px;
 }
-body.receipt-page .btn-download{
+
+body.receipt-page .btn-download {
     padding: 12px 20px;
     font-size: 16px;
     background-color: #E76268;
@@ -523,26 +664,31 @@ body.receipt-page .btn-download{
     cursor: pointer;
     transition: background 0.3s ease;
 }
-body.receipt-page .btn-download:hover{
+
+body.receipt-page .btn-download:hover {
     background-color: #d44d52;
 }
-body.receipt-page .back-link{
+
+body.receipt-page .back-link {
     display: inline-block;
     margin-top: 20px;
     color: #193948;
     text-decoration: none;
     font-weight: 600;
 }
-body.receipt-page .back-link:hover{
+
+body.receipt-page .back-link:hover {
     text-decoration: underline;
 }
-body.bookings-page{
+
+body.bookings-page {
     background-color: #FCDC73;
     font-family: 'Montserrat', sans-serif;
     padding: 40px 20px;
     color: #193948;
 }
-body.bookings-page .bookings-container{
+
+body.bookings-page .bookings-container {
     max-width: 1000px;
     margin: 0 auto;
     background: white;
@@ -550,35 +696,43 @@ body.bookings-page .bookings-container{
     border-radius: 15px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
-body.bookings-page .bookings-container h1{
+
+body.bookings-page .bookings-container h1 {
     font-family: 'Paytone One', sans-serif;
     text-align: center;
     margin-bottom: 30px;
 }
-body.bookings-page .table-responsive{
+
+body.bookings-page .table-responsive {
     overflow-x: auto;
 }
-body.bookings-page .booking-table{
+
+body.bookings-page .booking-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
     font-size: 15px;
 }
-body.bookings-page .booking-table th, .booking-table td{
+
+body.bookings-page .booking-table th,
+.booking-table td {
     border: 1px solid #ccc;
     padding: 12px;
     text-align: center;
 }
-body.bookings-page .booking-table th{
+
+body.bookings-page .booking-table th {
     background-color: #193948;
     color: white;
 }
-body.bookings-page .booking-table tr:nth-child(even){
+
+body.bookings-page .booking-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
+
 body.bookings-page .btn-cancel,
 body.bookings-page .btn-update,
-body.bookings-page .btn-clear{
+body.bookings-page .btn-clear {
     padding: 6px 12px;
     font-size: 14px;
     margin: 2px;
@@ -589,82 +743,98 @@ body.bookings-page .btn-clear{
     text-decoration: none;
     display: inline-block;
 }
-body.bookings-page .btn-cancel{
+
+body.bookings-page .btn-cancel {
     background-color: #E76268;
     color: white;
 }
-body.bookings-page .btn-cancel:hover{
+
+body.bookings-page .btn-cancel:hover {
     background-color: #c0392b;
 }
-body.bookings-page .btn-update{
+
+body.bookings-page .btn-update {
     background-color: #2980b9;
     color: white;
 }
-body.bookings-page .btn-update:hover{
+
+body.bookings-page .btn-update:hover {
     background-color: #216994;
 }
-body.bookings-page .btn-clear{
+
+body.bookings-page .btn-clear {
     background-color: #E76268;
     color: white;
     font-size: 16px;
 }
-body.bookings-page .btn-clear:hover{
+
+body.bookings-page .btn-clear:hover {
     background-color: #d44d52;
 }
-body.bookings-page .cancelled-tag{
+
+body.bookings-page .cancelled-tag {
     background-color: #ccc;
     color: #555;
     padding: 4px 10px;
     border-radius: 5px;
     font-size: 13px;
 }
-body.bookings-page .back-link{
+
+body.bookings-page .back-link {
     display: inline-block;
     margin-bottom: 20px;
     color: #193948;
     text-decoration: none;
     font-weight: 600;
 }
-body.bookings-page .back-link:hover{
+
+body.bookings-page .back-link:hover {
     text-decoration: underline;
 }
-body.update-page{
+
+body.update-page {
     background-color: #FCDC73;
     font-family: 'Montserrat', sans-serif;
     padding: 40px 20px;
     color: #193948;
 }
-body.update-page .update-container{
+
+body.update-page .update-container {
     max-width: 500px;
     margin: 0 auto;
     background: white;
     padding: 30px;
     border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
-body.update-page .update-container h1{
+
+body.update-page .update-container h1 {
     font-family: 'Paytone One', sans-serif;
     font-size: 30px;
     margin-bottom: 30px;
     text-align: center;
 }
-body.update-page .update-form .form-group{
-    margin-bottom:  20px;
+
+body.update-page .update-form .form-group {
+    margin-bottom: 20px;
     display: flex;
     flex-direction: column;
 }
-body.update-page .update-form label{
+
+body.update-page .update-form label {
     font-weight: 600;
     margin-bottom: 6px;
 }
+
 body.update-page .update-form input[type="date"],
-body.update-page .update-form select{
+body.update-page .update-form select {
     padding: 10px 15px;
     font-size: 16px;
     border: 2px solid #ccc;
     border-radius: 8px;
 }
-body.update-page .btn-update-book{
+
+body.update-page .btn-update-book {
     width: 100%;
     padding: 12px;
     background-color: #2980b9;
@@ -677,53 +847,63 @@ body.update-page .btn-update-book{
     margin-top: 10px;
     transition: background 0.3s ease;
 }
-body.update-page .btn-update-book:hover{
+
+body.update-page .btn-update-book:hover {
     background-color: #216994;
 }
-body.update-page .back-link{
+
+body.update-page .back-link {
     display: inline-block;
     margin-top: 20px;
     color: #193948;
     text-decoration: none;
     font-weight: 600;
 }
-body.update-page .back-link:hover{
+
+body.update-page .back-link:hover {
     text-decoration: underline;
 }
-body.update-page .cen{
+
+body.update-page .cen {
     text-align: center;
 }
-body.admin-password-page{
+
+body.admin-password-page {
     background-color: #FCDC73;
     font-family: 'Montserrat', sans-serif;
     padding: 40px 20px;
     color: #193948;
 }
-body.admin-password-page .admin-password-container{
+
+body.admin-password-page .admin-password-container {
     max-width: 500px;
     margin: 0 auto;
     background: white;
     padding: 30px;
     border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
-body.admin-password-page .admin-password-container h1{
+
+body.admin-password-page .admin-password-container h1 {
     font-family: 'Paytone One', sans-serif;
     font-size: 28px;
     margin-bottom: 25px;
 }
-body.admin-password-page .admin-password-form .form-group{
+
+body.admin-password-page .admin-password-form .form-group {
     margin-bottom: 20px;
     text-align: left;
 }
-body.admin-password-page .admin-password-form label{
+
+body.admin-password-page .admin-password-form label {
     display: block;
     font-weight: 600;
     margin-bottom: 6px;
 }
+
 body.admin-password-page .admin-password-form input[type="email"],
-body.admin-password-page .admin-password-form input[type="password"]{
+body.admin-password-page .admin-password-form input[type="password"] {
     width: 100%;
     padding: 10px 15px;
     font-size: 16px;
@@ -732,7 +912,8 @@ body.admin-password-page .admin-password-form input[type="password"]{
     background-color: #f7f7f7;
     box-sizing: border-box;
 }
-body.admin-password-page .btn-update-password{
+
+body.admin-password-page .btn-update-password {
     width: 100%;
     padding: 12px;
     background-color: #193948;
@@ -744,16 +925,89 @@ body.admin-password-page .btn-update-password{
     cursor: pointer;
     transition: background 0.3s ease;
 }
-body.admin-password-page .btn-update-password:hover{
+
+body.admin-password-page .btn-update-password:hover {
     background-color: #0f2735;
 }
-body.admin-password-page .back-link{
+
+body.admin-password-page .back-link {
     display: inline-block;
     margin-top: 20px;
     color: #193948;
     text-decoration: none;
     font-weight: 600;
 }
-body.admin-password-page .back-link:hover{
+
+body.admin-password-page .back-link:hover {
+    text-decoration: underline;
+}
+body.profile-page{
+    background-color: #FCDC73;
+    font-family: 'Montserrat', sans-serif;
+    color: #193948;
+    padding: 100px 20px 40px;
+    display: flex;
+    justify-content: center;
+}
+body.profile-page .profile-wrapper{
+    background: white;
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+body.profile-page .profile-wrapper h2{
+    font-family: 'Paytone One', sans-serif;
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #193948;
+}
+body.profile-page .profile-form{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+body.profile-page .profile-form input[type="text"],
+body.profile-page .profile-form input[type="email"],
+body.profile-page .profile-form input[type="password"]{
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 2px solid #ccc;
+    font-size: 15px;
+    background-color: #f9f9f9;
+    color: #193948;
+}
+body.profile-page .profile-form label{
+    font-weight: 600;
+}
+body.profile-page .btn-save{
+    background-color: #E76268;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 15px;
+    transition: background 0.3s ease;
+    margin-top: 10px;
+    cursor: pointer;
+}
+body.profile-page .btn-save:hover{
+    background-color: #d44d52;
+}
+body.profile-page .back-link{
+    text-align: center;
+    margin-top: 20px;
+}
+body.profile-page .back-link a{
+    text-decoration: none;
+    color: #193948;
+    font-weight: bold;
+}
+body.profile-page .back-link a:hover{
     text-decoration: underline;
 }

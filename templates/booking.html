@@ -7,38 +7,39 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body class="navbar-page booking-page">
+<body class="booking-page">
     {% include 'navbar.html' %}
+    <div class="page-content">
+        <div class="booking-container">
+            <h1>✈️ Book Your Journey</h1>
+            <form method="POST" class="booking-form">
+                <div class="form-group">
+                    <label>Travel Date:</label>
+                    <input type="date" name="travel_date" required>
+                </div>
 
-    <div class="booking-container">
-        <h1>✈️ Book Your Journey</h1>
-        <form method="POST" class="booking-form">
-            <div class="form-group">
-                <label>Travel Date:</label>
-                <input type="date" name="travel_date" required>
-            </div>
-
-            <div class="form-group">
-                <label>Journey:</label>
-                <select name="journey_id" required>
-                    {% for j in journeys %}
+                <div class="form-group">
+                    <label>Journey:</label>
+                    <select name="journey_id" required>
+                        {% for j in journeys %}
                         <option value="{{ j.id }}">{{ j.departure_city }} → {{ j.arrival_city }} (£{{ j.base_fare }})
                         </option>
-                    {% endfor %}
-                </select>
-            </div>
+                        {% endfor %}
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label>Seat Type:</label>
-                <select name="seat_type_id" required>
-                    {% for s in seats %}
+                <div class="form-group">
+                    <label>Seat Type:</label>
+                    <select name="seat_type_id" required>
+                        {% for s in seats %}
                         <option value="{{ s.id }}">{{ s.type_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+                        {% endfor %}
+                    </select>
+                </div>
 
-            <button type="submit" class="btn-book">Book Now</button>
-        </form>
+                <button type="submit" class="btn-book">Book Now</button>
+            </form>
+        </div>
     </div>
 </body>
 

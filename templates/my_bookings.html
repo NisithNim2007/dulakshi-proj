@@ -7,65 +7,67 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body class="navbar-page bookings-page">
+<body class="bookings-page">
     {% include 'navbar.html' %}
+    <div class="page-content">
+        <div class="bookings-container">
+            <h1>📋 My Bookings</h1>
 
-    <div class="bookings-container">
-        <h1>📋 My Bookings</h1>
+            <a href="/dashboard" class="back-link">← Back to Dashboard</a>
 
-        <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+            {% if bookings %}
+            <div class="table-responsive">
+                <table class="booking-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Date</th>
+                            <th>Seat</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>{{ booking.display_id }}</td>
+                            <td>{{ booking.departure_city }}</td>
+                            <td>{{ booking.arrival_city }}</td>
+                            <td>{{ booking.travel_date }}</td>
+                            <td>{{ booking.seat_type }}</td>
+                            <td>£{{ booking.final_price }}</td>
+                            <td>{{ booking.status | title }}</td>
+                            <td>
+                                {% if booking.status == 'paid' %}
+                                <form action="{{ url_for('cancel_booking', booking_id=booking.booking_id) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                    <button type="submit" class="btn-cancel">Cancel</button>
+                                    <a href="{{ url_for('update_booking', booking_id=booking.booking_id) }}"
+                                        class="btn-update">Update</a>
+                                </form>
+                                {% else %}
+                                <span class="cancelled-tag">Cancelled</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>No bookings found.</p>
+            {% endif %}
 
-        {% if bookings %}
-        <div class="table-responsive">
-            <table class="booking-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>Date</th>
-                        <th>Seat</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for booking in bookings %}
-                    <tr>
-                        <td>{{ booking.display_id }}</td>
-                        <td>{{ booking.departure_city }}</td>
-                        <td>{{ booking.arrival_city }}</td>
-                        <td>{{ booking.travel_date }}</td>
-                        <td>{{ booking.seat_type }}</td>
-                        <td>£{{ booking.final_price }}</td>
-                        <td>{{ booking.status | title }}</td>
-                        <td>
-                            {% if booking.status == 'paid' %}
-                            <form action="{{ url_for('cancel_booking', booking_id=booking.booking_id) }}" method="POST"
-                                onsubmit="return confirm('Are you sure you want to cancel this booking?');">
-                                <button type="submit" class="btn-cancel">Cancel</button>
-                                <a href="{{ url_for('update_booking', booking_id=booking.booking_id) }}"
-                                    class="btn-update">Update</a>
-                            </form>
-                            {% else %}
-                            <span class="cancelled-tag">Cancelled</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% if bookings|selectattr("status", "equalto", "cancelled")|list %}
+            <form method="POST" action="{{ url_for('clear_cancelled') }}" style="margin-top: 30px;">
+                <button type="submit" class="btn-clear">🗑 Clear Cancelled Bookings</button>
+            </form>
+            {% endif %}
         </div>
-        {% else %}
-        <p>No bookings found.</p>
-        {% endif %}
-
-        {% if bookings|selectattr("status", "equalto", "cancelled")|list %}
-        <form method="POST" action="{{ url_for('clear_cancelled') }}" style="margin-top: 30px;">
-            <button type="submit" class="btn-clear">🗑 Clear Cancelled Bookings</button>
-        </form>
-        {% endif %}
     </div>
 </body>
 

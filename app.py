@@ -8,6 +8,9 @@ from reportlab.pdfgen import canvas
 from io import BytesIO
 from smtplib import SMTP
 from email.message import EmailMessage
+from flask import jsonify
+from email.utils import formataddr
+import os
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -70,25 +73,117 @@ class Discount(db.Model):
     days_before = db.Column(db.Integer)
     discount_percent = db.Column(db.Integer)
 
+def send_cancellation_email(user_email, user_name, booking_id, route, travel_date, charge_amount):
+    msg = EmailMessage()
+    msg['Subject'] = f"Booking #{booking_id} Cancelled – Horizon Travels"
+    msg['From'] = formataddr(("Horizon Travels", app.config['MAIL_USERNAME']))
+    msg['To'] = user_email
+
+    msg.set_content(f"""\
+Hi {user_name},
+
+Your booking (#{booking_id}) has been cancelled.
+
+🔹 Route: {route}
+🔹 Travel Date: {travel_date}
+🔹 Cancellation Fee: £{charge_amount:.2f}
+
+We hope to see you again soon!  
+If you have any questions, please reach out to our support team.
+
+— Horizon Travels Team
+""")
+
+    try:
+        with SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT']) as smtp:
+            smtp.starttls()
+            smtp.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+            smtp.send_message(msg)
+        print("✅ Cancellation email sent.")
+    except Exception as e:
+        print("❌ Failed to send cancellation email:", e)
+
+def send_thank_you_email(email, name):
+    msg = EmailMessage()
+    msg['Subject'] = "🎉 Welcome to Horizon Travels!"
+    msg['From'] = formataddr(("Horizon Travels", app.config['MAIL_USERNAME']))  # ✅ correct format
+    msg['To'] = email
+
+    msg.set_content(f"""\
+Hi {name},
+
+Thank you for registering with Horizon Travels! ✈️
+We’re excited to have you on board and can’t wait to take you to amazing destinations.
+
+Feel free to book your first trip now through your dashboard.
+
+Safe travels!  
+- The Horizon Travels Team
+""")
+
+    try:
+        with SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT']) as smtp:
+            smtp.starttls()
+            smtp.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+            smtp.send_message(msg)
+        print("✅ Thank-you email sent successfully.")
+    except Exception as e:
+        print("❌ Failed to send email:", e)
+
+
+
 @app.route('/')
 def index():
     return render_template('index.html', show_minimal_nav=True)
 
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify  # ✅ include jsonify
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        password = generate_password_hash(request.form['password'])
+        data = request.get_json()  # ✅ JSON from AJAX
+        name = data.get('name')
+        email = data.get('email')
+        password = data.get('password')
+
+        if not name or not email or not password:
+            return jsonify({'success': False, 'message': 'Missing fields'}), 400
 
         if User.query.filter_by(email=email).first():
-            return 'Email already exists!'
+            # 👉 On frontend JSON AJAX call
+            return jsonify({'success': False, 'redirect': '/email-exists'}), 409
 
-        new_user = User(name=name, email=email, password=password)
+        new_user = User(name=name, email=email, password=generate_password_hash(password))
         db.session.add(new_user)
         db.session.commit()
-        return redirect('/login')
+
+        send_thank_you_email(email, name)
+
+        return jsonify({'success': True})
+
     return render_template('register.html')
+
+@app.route('/email-exists')
+def email_exists():
+    return render_template('email_exists.html')
+
+
+@app.route('/sending-thank-you')
+def sending_thank_you():
+    email = session.get('registered_email')
+    name = session.get('registered_name')
+
+    if not email or not name:
+        return redirect('/register')
+
+    send_thank_you_email(email, name)
+
+    session.pop('registered_email', None)
+    session.pop('registered_name', None)
+
+    return '', 200  # just signal JS that it's done
+
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -105,7 +200,7 @@ def login():
             # 👇 Redirect based on role
             return redirect('/dashboard')
         else:
-            return 'Invalid credentials'
+            return render_template('invalid_login.html')
 
     return render_template('login.html')
 
@@ -225,58 +320,126 @@ def profile():
 
 def send_email(user_email, pdf_data, booking_id):
     msg = EmailMessage()
-    msg['Subject']= f"Horizon Travels Booking Receipt #{booking_id}"
-    msg['From'] = app.config['MAIL_USERNAME']
+    msg['Subject'] = f"Your Horizon Travels Receipt #{booking_id}"
+    msg['From'] = formataddr(("Horizon Travels", app.config['MAIL_USERNAME']))
     msg['To'] = user_email
-    msg.set_content("Thank you for your booking! Please Find your receipt attached.")
 
+    msg.set_content(f"""\
+Hi there,
+
+Thank you for your booking with Horizon Travels! 🎉
+Please find your booking receipt (#{booking_id}) attached as a PDF.
+
+We look forward to having you onboard!
+
+– Horizon Travels Team
+""")
+
+    # Attach PDF
     msg.add_attachment(pdf_data, maintype='application', subtype='pdf', filename=f'receipt_{booking_id}.pdf')
-    
-    with SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT']) as smtp:
-        smtp.starttls()
-        smtp.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
-        smtp.send_message(msg)
+
+    try:
+        with SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT']) as smtp:
+            smtp.starttls()
+            smtp.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+            smtp.send_message(msg)
+        print("✅ PDF receipt email sent successfully.")
+    except Exception as e:
+        print("❌ Failed to send PDF receipt:", e)
 
 @app.route('/confirm-booking', methods=['POST'])
 def confirm_booking():
     if 'user_id' not in session:
-        return redirect('/login')
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
 
-    booking = Booking(
-        user_id=session['user_id'],
-        journey_id=request.form['journey_id'],
-        seat_type_id=request.form['seat_type_id'],
-        travel_date=datetime.strptime(request.form['travel_date'], '%Y-%m-%d').date(),
-        final_price=request.form['final_price']
-    )
-    db.session.add(booking)
-    db.session.commit()
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'message': 'Invalid data'}), 400
 
-    #Generate PDF
-    buffer = BytesIO()
-    pdf = canvas.Canvas(buffer)
+    try:
+        booking = Booking(
+            user_id=session['user_id'],
+            journey_id=int(data['journey_id']),
+            seat_type_id=int(data['seat_type_id']),
+            travel_date=datetime.strptime(data['travel_date'], '%Y-%m-%d').date(),
+            final_price=float(data['final_price'])
+        )
+        db.session.add(booking)
+        db.session.commit()
 
-    user = User.query.get(session['user_id'])
-    journey = Journey.query.get(booking.journey_id)
-    seat = SeatType.query.get(booking.seat_type_id)
+        user = User.query.get(session['user_id'])
+        journey = Journey.query.get(booking.journey_id)
+        seat = SeatType.query.get(booking.seat_type_id)
 
-    pdf.drawString(100, 800, "Horizon Travels - Booking Receipt")
-    pdf.drawString(100, 780, f"Booking ID: {booking.id}")
-    pdf.drawString(100, 765, f"Name: {user.name}")
-    pdf.drawString(100, 750, f"Email: {user.email}")
-    pdf.drawString(100, 735, f"Route: {journey.departure_city} → {journey.arrival_city}")
-    pdf.drawString(100, 720, f"Departure: {journey.departure_time}")
-    pdf.drawString(100, 705, f"Arrival: {journey.arrival_time}")
-    pdf.drawString(100, 690, f"Travel Date: {booking.travel_date}")
-    pdf.drawString(100, 675, f"Seat Type: {seat.type_name}")
-    pdf.drawString(100, 660, f"Total Price: £{booking.final_price}")
-    pdf.showPage()
-    pdf.save()
-    buffer.seek(0)
+        # === 📄 PDF RECEIPT BUFFER ===
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer, pagesize=(600, 800))
+        pdf.setTitle(f"Horizon Receipt #{booking.id}")
 
-    send_email(user.email, buffer.read(), booking.id)
+        # === 🖼 Logo + Heading ===
+        logo_path = "static/images/horizon_logo.png"
+        pdf.drawImage(logo_path, 40, 730, width=70, height=40, preserveAspectRatio=True)
+        pdf.setFont("Helvetica-Bold", 16)
+        pdf.drawString(120, 745, "Horizon Travels")
+        pdf.setFont("Helvetica", 10)
+        pdf.drawString(120, 730, "Booking Receipt")
+        pdf.drawRightString(570, 745, f"Date: {datetime.today().strftime('%Y-%m-%d')}")
 
-    return redirect(f'/receipt/{booking.id}')
+        # === 🧾 Receipt Box ===
+        pdf.setFont("Helvetica-Bold", 12)
+        pdf.drawString(40, 690, "Receipt Summary")
+        pdf.setLineWidth(0.5)
+        pdf.line(40, 685, 560, 685)
+
+        data_table = [
+            ["Booking ID", f"{booking.id}"],
+            ["Passenger Name", user.name],
+            ["Email", user.email],
+            ["Travel Date", str(booking.travel_date)],
+            ["From", journey.departure_city],
+            ["To", journey.arrival_city],
+            ["Departure Time", journey.departure_time.strftime('%H:%M')],
+            ["Arrival Time", journey.arrival_time.strftime('%H:%M')],
+            ["Seat Type", seat.type_name],
+            ["Total Paid", f"£{booking.final_price:.2f}"]
+        ]
+
+        y_start = 660
+        row_height = 22
+        pdf.setFont("Helvetica", 10)
+
+        for label, value in data_table:
+            pdf.setFillColorRGB(0.95, 0.95, 0.95)
+            pdf.rect(40, y_start - row_height + 4, 240, row_height, fill=True, stroke=False)
+            pdf.setFillColorRGB(1, 1, 1)
+            pdf.rect(280, y_start - row_height + 4, 280, row_height, fill=False, stroke=False)
+            pdf.setFillColorRGB(0, 0, 0)
+
+            pdf.drawString(50, y_start, label)
+            pdf.drawString(290, y_start, str(value))
+            y_start -= row_height
+
+        # === 💬 Footer ===
+        pdf.setFont("Helvetica-Oblique", 9)
+        pdf.drawString(40, 80, "Thank you for booking with Horizon Travels! ✈️")
+        pdf.drawString(40, 65, "Questions? Contact us at support@horizontravels.com")
+
+        pdf.showPage()
+        pdf.save()
+        buffer.seek(0)
+
+        send_email(user.email, buffer.read(), booking.id)
+
+        return jsonify({
+            'success': True,
+            'redirect_url': f'/receipt/{booking.id}'
+        })
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+
 
 @app.route('/receipt/<int:booking_id>')
 def receipt(booking_id):
@@ -319,29 +482,53 @@ def download_receipt(booking_id):
         return "Unauthorized", 403
 
     buffer = BytesIO()
-    pdf = canvas.Canvas(buffer)
+    pdf = canvas.Canvas(buffer, pagesize=(595.27, 841.89))  # A4 size
+
+    # 🖼 Add logo (adjust path if needed)
+    logo_path = os.path.join(app.root_path, 'static', 'images', 'horizon_logo.png')
+    if os.path.exists(logo_path):
+        pdf.drawInlineImage(logo_path, 40, 770, width=50, height=50)
+
+    pdf.setFont("Helvetica-Bold", 18)
+    pdf.drawString(100, 780, "Horizon Travels – Booking Receipt")
 
     pdf.setFont("Helvetica", 12)
-    pdf.drawString(100, 800, "Horizon Travels - Booking Receipt")
-    pdf.drawString(100, 780, f"Booking ID: {booking.Booking.id}")
-    pdf.drawString(100, 765, f"Name: {booking.User.name}")
-    pdf.drawString(100, 750, f"Email: {booking.User.email}")
-    pdf.drawString(100, 735, f"Route: {booking.Journey.departure_city} → {booking.Journey.arrival_city}")
-    pdf.drawString(100, 720, f"Departure: {booking.Journey.departure_time}")
-    pdf.drawString(100, 705, f"Arrival: {booking.Journey.arrival_time}")
-    pdf.drawString(100, 690, f"Travel Date: {booking.Booking.travel_date}")
-    pdf.drawString(100, 675, f"Seat Type: {booking.SeatType.type_name}")
-    pdf.drawString(100, 660, f"Total Price: £{booking.Booking.final_price}")
-    pdf.drawString(100, 645, f"Status: {booking.Booking.status}")
+    pdf.line(40, 765, 555, 765)
+
+    y = 740
+    spacing = 20
+
+    def row(label, value):
+        nonlocal y
+        pdf.setFont("Helvetica-Bold", 12)
+        pdf.drawString(50, y, f"{label}:")
+        pdf.setFont("Helvetica", 12)
+        pdf.drawString(200, y, str(value))
+        y -= spacing
+
+    row("Booking ID", booking.Booking.id)
+    row("Name", booking.User.name)
+    row("Email", booking.User.email)
+    row("Route", f"{booking.Journey.departure_city} → {booking.Journey.arrival_city}")
+    row("Departure Time", booking.Journey.departure_time.strftime("%H:%M"))
+    row("Arrival Time", booking.Journey.arrival_time.strftime("%H:%M"))
+    row("Travel Date", booking.Booking.travel_date.strftime('%Y-%m-%d'))
+    row("Seat Type", booking.SeatType.type_name)
+    row("Status", booking.Booking.status)
+    row("Total Price", f"£{booking.Booking.final_price:.2f}")
+
+    pdf.setFont("Helvetica-Oblique", 10)
+    pdf.drawString(50, y - 20, "Thank you for booking with Horizon Travels! ✈️")
 
     pdf.showPage()
     pdf.save()
-
     buffer.seek(0)
+
     return make_response(buffer.read(), {
         'Content-Type': 'application/pdf',
         'Content-Disposition': f'attachment; filename=receipt_{booking.Booking.id}.pdf'
     })
+
 
 @app.route('/my-bookings')
 def my_bookings():
@@ -390,7 +577,6 @@ def cancel_booking(booking_id):
 
     booking = Booking.query.get_or_404(booking_id)
 
-    # Only allow user to cancel their own bookings
     if booking.user_id != session['user_id']:
         return "Unauthorized", 403
 
@@ -404,23 +590,34 @@ def cancel_booking(booking_id):
         .first()
     )
 
-    if cancellation_rule:
-        charge_percent = cancellation_rule.charge_percent
-    else:
-        charge_percent = 100
-    
-    charge = (charge_percent/100) * original_price
+    charge_percent = cancellation_rule.charge_percent if cancellation_rule else 100
+    charge = round((charge_percent / 100) * original_price, 2)
 
     # Update booking status
     booking.status = 'cancelled'
     db.session.commit()
 
-    # Optionally: log the cancellation fee in a 'cancellations' table if you want
-    return f"""
-        <h3>Booking Cancelled</h3>
-        <p>Cancellation Charge: £{round(charge, 2)}</p>
-        <a href='/my-bookings'>Back to My Bookings</a>
-    """
+    # Send cancellation email
+    user = User.query.get(booking.user_id)
+    journey = Journey.query.get(booking.journey_id)
+    route = f"{journey.departure_city} → {journey.arrival_city}"
+    send_cancellation_email(
+        user.email,
+        user.name,
+        booking.id,
+        route,
+        booking.travel_date.strftime('%Y-%m-%d'),
+        charge
+    )
+
+    return render_template(
+        'cancel_confirmation.html',
+        booking_id=booking.id,
+        route=route,
+        travel_date=booking.travel_date.strftime('%Y-%m-%d'),
+        charge=round(charge, 2)
+
+    )
 
 @app.route('/update-booking/<int:booking_id>', methods=['GET', 'POST'])
 def update_booking(booking_id):
@@ -464,7 +661,14 @@ def update_booking(booking_id):
         booking.final_price = final_price
         db.session.commit()
 
-        return f"<h3>Booking Updated!</h3><p>New Total: £{final_price}</p><a href='/my-bookings'>Go back</a>"
+        return render_template(
+            'update_confirmation.html',
+            booking_id=booking.id,
+            travel_date=new_date.strftime('%Y-%m-%d'),
+            seat_type=new_seat.type_name,
+            final_price=final_price
+        )
+
 
     return render_template('update_booking.html', booking=booking, seat_types=seat_types)
 
@@ -477,11 +681,7 @@ def admin_dashboard():
 @admin_required
 def view_users():
     users = User.query.all()
-    output = "<h2>All Users</h2><ul>"
-    for u in users:
-        output += f"<li>{u.name} ({u.email}) - Role: {u.role}</li>"
-    output += "</ul><a href='/admin'>Back</a> <br><br> <a href='/admin/update-password'>Update User</a>"
-    return output
+    return render_template('admin_users.html', users=users)
 
 @app.route('/admin/bookings', methods=['GET', 'POST'])
 @admin_required
@@ -504,27 +704,7 @@ def view_all_bookings():
 
     bookings = query.order_by(Booking.travel_date.desc()).all()
 
-    html = """
-    <h2>All Bookings</h2>
-
-    <form method="POST">
-        <input type="number" name="booking_id" placeholder="Enter Booking ID" required>
-        <button type="submit">Search</button>
-        <button><a href="/admin/bookings">Reset</a></button>
-    </form>
-    <br>
-    """
-
-    if bookings:
-        html += "<table border='1'><tr><th>ID</th><th>User</th><th>Route</th><th>Date</th><th>Status</th><th>Price</th></tr>"
-        for b in bookings:
-            html += f"<tr><td>{b.id}</td><td>{b.user_name}</td><td>{b.departure_city} → {b.arrival_city}</td><td>{b.travel_date}</td><td>{b.status}</td><td>£{b.final_price}</td></tr>"
-        html += "</table>"
-    else:
-        html += "<p>No bookings found.</p>"
-
-    html += "<br><a href='/admin'>← Back to Admin Dashboard</a>"
-    return html
+    return render_template('admin_bookings.html', bookings=bookings)
 
 
 @app.route('/admin/journeys', methods=['GET', 'POST'])
@@ -550,25 +730,7 @@ def manage_journeys():
         return redirect('/admin/journeys')
     
     journeys = Journey.query.all()
-    html = "<h2>Manage Journeys</h2><table border='1'><tr><th>ID</th><th>From → To</th><th>Time</th><th>Fare</th><th>Action</th></tr>"
-    for j in journeys:
-        html += f"<tr><td>{j.id}</td><td>{j.departure_city} → {j.arrival_city}</td><td>{j.departure_time} → {j.arrival_time}</td><td>£{j.base_fare}</td>"
-        html += f"<td><a href='/admin/journeys/edit/{j.id}'>Edit</a> | <a href='/admin/journeys/delete/{j.id}'>Delete</a></td></tr>"
-
-    html += "</table><br>"
-    html += """
-    <h3>Add Journey</h3>
-    <form method='POST'>
-        Departure: <input name='departure'><br>
-        Arrival: <input name='arrival'><br>
-        Departure Time (HH:MM): <input name='departure_time'><br>
-        Arrival Time (HH:MM): <input name='arrival_time'><br>
-        Base Fare: <input name='base_fare'><br>
-        <button type='submit'>Add Journey</button>
-    </form>
-    <br><a href='/admin'>Back to Admin Dashboard</a>
-    """
-    return html
+    return render_template('admin_journeys.html', journeys=journeys)
 
 @app.route('/make-admin')
 def make_admin():
@@ -630,18 +792,7 @@ def edit_journey(journey_id):
         db.session.commit()
         return redirect('/admin/journeys')
 
-    return f"""
-    <h2>Edit Journey #{journey.id}</h2>
-    <form method='POST'>
-        Departure: <input name='departure' value='{journey.departure_city}'><br>
-        Arrival: <input name='arrival' value='{journey.arrival_city}'><br>
-        Departure Time (HH:MM): <input name='departure_time' value='{journey.departure_time.strftime('%H:%M')}'><br>
-        Arrival Time (HH:MM): <input name='arrival_time' value='{journey.arrival_time.strftime('%H:%M')}'><br>
-        Base Fare: <input name='base_fare' value='{journey.base_fare}'><br>
-        <button type='submit'>Update Journey</button>
-    </form>
-    <br><a href='/admin/journeys'>Cancel</a>
-    """
+    return render_template('edit_journey.html', journey=journey)
 
 @app.route('/admin/search-booking', methods=['GET', 'POST'])
 @admin_required
@@ -672,16 +823,8 @@ def search_booking():
 @app.route('/admin/reports')
 @admin_required
 def reports_dashboard():
-    return """
-    <h2>Reports Dashboard</h2>
-    <ul>
-        <li><a href='/admin/reports/monthly-sales'>📅 Monthly Sales</a></li>
-        <li><a href='/admin/reports/top-customers'>🧑 Top Customers</a></li>
-        <li><a href='/admin/reports/top-routes'>✈️ Most Profitable Routes</a></li>
-        <li><a href='/admin/reports/cancellations'>❌ Cancellations</a></li>
-    </ul>
-    <a href='/admin'>← Back to Admin Dashboard</a>
-    """
+    return render_template('reports_dashboard.html')
+
 @app.route('/admin/reports/monthly-sales')
 @admin_required
 def report_monthly_sales():
@@ -692,15 +835,8 @@ def report_monthly_sales():
      .group_by("month")\
      .order_by("month")\
      .all()
-
-    html = "<h2>📅 Monthly Sales Report</h2>"
-    html += "<table border='1'><tr><th>Month</th><th>Total Sales</th></tr>"
-
-    for s in sales:
-        html += f"<tr><td>{s.month}</td><td>£{round(s.total, 2)}</td></tr>"
-
-    html += "</table><br><a href='/admin/reports'>← Back to Reports</a>"
-    return html
+    
+    return render_template('monthly_sales.html', sales=sales)
 
 
 @app.route('/admin/reports/top-customers')
@@ -712,12 +848,8 @@ def report_top_customers():
         db.func.count(Booking.id).label("bookings")
     ).join(Booking).filter(Booking.status == 'paid')\
      .group_by(User.id).order_by(db.desc("total_spent")).limit(5).all()
-
-    html = "<h2>Top 5 Customers</h2><table border='1'><tr><th>Name</th><th>Total Spent</th><th># of Bookings</th></tr>"
-    for c in customers:
-        html += f"<tr><td>{c.name}</td><td>£{round(c.total_spent, 2)}</td><td>{c.bookings}</td></tr>"
-    html += "</table><br><a href='/admin/reports'>Back to Reports</a>"
-    return html
+    
+    return render_template('top_customers.html', customers=customers)
 
 @app.route('/admin/reports/top-routes')
 @admin_required
@@ -731,11 +863,7 @@ def report_top_routes():
      .group_by(Journey.id)\
      .order_by(db.desc("route_income")).all()
 
-    html = "<h2>Most Profitable Routes</h2><table border='1'><tr><th>Route</th><th>Total Income</th><th>Bookings</th></tr>"
-    for r in routes:
-        html += f"<tr><td>{r.departure_city} → {r.arrival_city}</td><td>£{round(r.route_income, 2)}</td><td>{r.bookings}</td></tr>"
-    html += "</table><br><a href='/admin/reports'>Back to Reports</a>"
-    return html
+    return render_template('top_routes.html', routes=routes)
 
 @app.route('/admin/reports/cancellations')
 @admin_required
@@ -745,11 +873,7 @@ def report_cancellations():
         db.func.sum(Booking.final_price).label("value_lost")
     ).filter(Booking.status == 'cancelled').first()
 
-    html = "<h2>Cancellations Report</h2>"
-    html += f"<p><strong>Total Cancelled Bookings:</strong> {cancelled.total_cancelled}</p>"
-    html += f"<p><strong>Estimated Value Lost:</strong> £{round(cancelled.value_lost or 0, 2)}</p>"
-    html += "<br><a href='/admin/reports'>Back to Reports</a>"
-    return html
+    return render_template('cancellations.html', cancelled=cancelled)
 
 
 # ✅ MOVE THIS TO THE END!

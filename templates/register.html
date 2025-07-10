@@ -4,14 +4,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Horizon Travels</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css'>
-    <title>Document</title>
+    <style>
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #E76268;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .success {
+            font-size: 2.5rem;
+            color: green;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
 <body class="register-page">
+
     <div class="wrapper">
-        <form method="POST">
+        <form id="registerForm">
             <h1>Register</h1>
             <div class="input-box">
                 <input type="text" name="name" placeholder="Name" required>
@@ -31,6 +68,60 @@
             </div>
         </form>
     </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="overlay">
+        <div class="loader"></div>
+        <p>Sending confirmation email...</p>
+    </div>
+
+    <!-- Success Overlay -->
+    <div id="successOverlay" class="overlay">
+        <div class="success">✅</div>
+        <p>Registration Successful!</p>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Show loading
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            const form = e.target;
+            const data = {
+                name: form.name.value,
+                email: form.email.value,
+                password: form.password.value
+            };
+
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('successOverlay').style.display = 'flex';
+
+                setTimeout(() => {
+                    window.location.href = "/login";
+                }, 2000);
+            } else {
+                document.getElementById('loadingOverlay').style.display = 'none';
+
+                if (result.redirect) {
+                    window.location.href = result.redirect;  // 👈 Redirect to custom error page
+                } else {
+                    alert(result.message || "Registration failed.");
+                }
+            }
+        });
+    </script>
+
 </body>
 
 </html>

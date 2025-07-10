@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Reports Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="admin-page">
+    {% include 'navbar.html' %}
+
+    <div class="admin-container">
+        <h2>📊 Reports Dashboard</h2>
+
+        <div class="dashboard-grid">
+            <a href="/admin/reports/monthly-sales" class="dash-card admin-link">📅 Monthly Sales</a>
+            <a href="/admin/reports/top-customers" class="dash-card admin-link">🧑 Top Customers</a>
+            <a href="/admin/reports/top-routes" class="dash-card admin-link">✈️ Most Profitable Routes</a>
+            <a href="/admin/reports/cancellations" class="dash-card admin-link">❌ Cancellations</a>
+        </div>
+
+        <br>
+        <a href="/dashboard" class="styled-btn secondary">← Back to Dashboard</a>
+    </div>
+</body>
+
+</html>

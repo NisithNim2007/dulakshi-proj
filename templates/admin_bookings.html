@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - All Bookings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="admin-page">
+    {% include 'navbar.html' %}
+
+    <div class="admin-container">
+        <h2>📋 All Bookings</h2>
+
+        <form method="POST" class="booking-search-form">
+            <input type="number" name="booking_id" placeholder="Enter Booking ID" required>
+            <button type="submit" class="styled-btn">Search</button>
+            <a href="/admin/bookings" class="styled-btn secondary">Reset</a>
+        </form>
+
+        {% if bookings %}
+        <div class="responsive-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Route</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                    <tr>
+                        <td>{{ b.id }}</td>
+                        <td>{{ b.user_name }}</td>
+                        <td>{{ b.departure_city }} → {{ b.arrival_city }}</td>
+                        <td>{{ b.travel_date }}</td>
+                        <td>{{ b.status }}</td>
+                        <td>£{{ b.final_price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No bookings found.</p>
+        {% endif %}
+
+        <br>
+        <a href="/dashboard" class="styled-btn">← Back to Dashboard</a>
+    </div>
+</body>
+
+</html>

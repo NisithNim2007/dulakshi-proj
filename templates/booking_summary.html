@@ -5,6 +5,43 @@
     <meta charset="UTF-8">
     <title>Booking Summary</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loader {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #E76268;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .success {
+            font-size: 2.5rem;
+            color: green;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
 <body class="summary-page">
@@ -23,7 +60,8 @@
                 <p class="total"><strong>Total Price:</strong> £{{ final_price }}</p>
             </div>
 
-            <form method="POST" action="/confirm-booking">
+            <!-- Updated form with id -->
+            <form id="bookingForm">
                 <input type="hidden" name="journey_id" value="{{ journey_id }}">
                 <input type="hidden" name="seat_type_id" value="{{ seat.id }}">
                 <input type="hidden" name="travel_date" value="{{ travel_date }}">
@@ -34,6 +72,49 @@
             <a href="/booking" class="back-link">← Go Back</a>
         </div>
     </div>
+
+    <!-- Loading Screen -->
+    <div id="loadingOverlay" class="overlay">
+        <div class="loader"></div>
+        <p>Sending receipt email...</p>
+    </div>
+
+    <!-- Success Screen -->
+    <div id="successOverlay" class="overlay">
+        <div class="success">✅</div>
+        <p>Booking Confirmed!</p>
+    </div>
+
+    <script>
+        document.getElementById('bookingForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+
+            const response = await fetch('/confirm-booking', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (result.success && result.redirect_url) {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('successOverlay').style.display = 'flex';
+                setTimeout(() => {
+                    window.location.href = result.redirect_url;
+                }, 2000);
+            } else {
+                alert("Something went wrong.");
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        });
+    </script>
 </body>
 
 </html>

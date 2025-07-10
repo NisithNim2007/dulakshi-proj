@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Top Customers</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="admin-page">
+    {% include 'navbar.html' %}
+
+    <div class="page-content">
+        <h2 class="admin-heading">🧑 Top 5 Customers</h2>
+
+        {% if customers %}
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Total Spent</th>
+                        <th># of Bookings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in customers %}
+                    <tr>
+                        <td>{{ c.name }}</td>
+                        <td>£{{ '%.2f'|format(c.total_spent) }}</td>
+                        <td>{{ c.bookings }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No customer data found.</p>
+        {% endif %}
+
+        <a href="/admin/reports" class="styled-btn secondary">← Back to Reports</a>
+    </div>
+</body>
+
+</html>

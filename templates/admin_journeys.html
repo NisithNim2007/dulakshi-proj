@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Journeys</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="admin-page">
+    {% include 'navbar.html' %}
+    <div class="admin-container">
+        <h2>🛣 Manage Journeys</h2>
+
+        <div class="responsive-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>From → To</th>
+                        <th>Time</th>
+                        <th>Fare (£)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for j in journeys %}
+                    <tr>
+                        <td>{{ j.id }}</td>
+                        <td>{{ j.departure_city }} → {{ j.arrival_city }}</td>
+                        <td>{{ j.departure_time }} → {{ j.arrival_time }}</td>
+                        <td>{{ j.base_fare }}</td>
+                        <td>
+                            <a href="/admin/journeys/edit/{{ j.id }}" class="table-action">✏️ Edit</a>
+                            <a href="/admin/journeys/delete/{{ j.id }}" class="table-action delete">🗑 Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <br><br>
+        <h3>Add New Journey</h3>
+        <form method="POST" class="styled-form">
+            <label>Departure:</label>
+            <input name="departure" required>
+
+            <label>Arrival:</label>
+            <input name="arrival" required>
+
+            <label>Departure Time (HH:MM):</label>
+            <input name="departure_time" type="time" required>
+
+            <label>Arrival Time (HH:MM):</label>
+            <input name="arrival_time" type="time" required>
+
+            <label>Base Fare (£):</label>
+            <input name="base_fare" type="number" step="0.01" required>
+
+            <button type="submit" class="styled-btn">➕ Add Journey</button>
+        </form>
+
+        <br>
+        <a href="/dashboard" class="styled-btn">← Back to Dashboard</a>
+    </div>
+</body>
+
+</html>

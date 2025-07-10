@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Top Routes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="admin-page">
+    {% include 'navbar.html' %}
+
+    <div class="page-content">
+        <h2 class="admin-heading">✈️ Most Profitable Routes</h2>
+
+        {% if routes %}
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Route</th>
+                        <th>Total Income</th>
+                        <th>Bookings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for route in routes %}
+                    <tr>
+                        <td>{{ route.departure_city }} → {{ route.arrival_city }}</td>
+                        <td>£{{ '%.2f'|format(route.route_income) }}</td>
+                        <td>{{ route.bookings }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No route data found.</p>
+        {% endif %}
+
+        <a href="/admin/reports" class="styled-btn secondary">← Back to Reports</a>
+    </div>
+</body>
+
+</html>

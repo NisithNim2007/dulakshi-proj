@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Updated</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="receipt-page">
+    {% include 'navbar.html' %}
+    <div class="receipt-container">
+        <h1>🔄 Booking Updated</h1>
+        <h2>Your changes have been saved successfully!</h2>
+
+        <div class="receipt-details">
+            <p><strong>Booking ID:</strong> {{ booking_id }}</p>
+            <p><strong>New Travel Date:</strong> {{ travel_date }}</p>
+            <p><strong>New Seat Type:</strong> {{ seat_type }}</p>
+            <p class="total-price"><strong>New Total Price:</strong> £{{ final_price }}</p>
+        </div>
+
+        <a href="/my-bookings" class="btn-download">← Back to My Bookings</a>
+    </div>
+</body>
+
+</html>

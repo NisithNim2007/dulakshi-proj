@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login Failed</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="receipt-page">
+    {% include 'navbar.html' %}
+    <div class="receipt-container">
+        <h1>❌ Invalid Credentials</h1>
+        <h2>Oops! Your email or password was incorrect.</h2>
+        <p>Please double-check your details and try again.</p>
+        <a href="/login" class="btn-download">🔐 Back to Login</a>
+    </div>
+</body>
+
+</html>

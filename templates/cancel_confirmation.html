@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Cancelled</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="receipt-page">
+    {% include 'navbar.html' %}
+    <div class="receipt-container">
+        <h1>❌ Booking Cancelled</h1>
+        <h2>We're sorry to see you go.</h2>
+
+        <div class="receipt-details">
+            <p><strong>Booking ID:</strong> {{ booking_id }}</p>
+            <p><strong>Route:</strong> {{ route }}</p>
+            <p><strong>Travel Date:</strong> {{ travel_date }}</p>
+            <p><strong>Status:</strong> Cancelled</p>
+            <p class="total-price"><strong>Cancellation Charge:</strong> £{{ charge }}</p>
+        </div>
+
+        <a href="/my-bookings" class="btn-download">← Back to My Bookings</a>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Monthly Sales Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="admin-page">
+    {% include 'navbar.html' %}
+    <div class="page-content">
+        <h2 class="admin-heading">📅 Monthly Sales Report</h2>
+
+        {% if sales %}
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Total Sales</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in sales %}
+                    <tr>
+                        <td>{{ s.month }}</td>
+                        <td>£{{ '%.2f'|format(s.total) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No sales data available.</p>
+        {% endif %}
+
+        <a href="/admin/reports" class="styled-btn secondary">← Back to Reports</a>
+    </div>
+</body>
+
+</html>

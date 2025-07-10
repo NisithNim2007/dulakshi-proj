@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Email Already Exists</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="receipt-page">
+    {% include 'navbar.html' %}
+    <div class="receipt-container">
+        <h1>⚠️ Email Already Registered</h1>
+        <h2>This email is already associated with an account.</h2>
+        <p>If you already have an account, you can log in below.</p>
+        <div style="margin-top: 20px;">
+            <a href="/login" class="btn-download">🔑 Login Instead</a>
+            <a href="/register" class="btn-download" style="background: #193948;">🔁 Try Again</a>
+        </div>
+    </div>
+</body>
+
+</html>

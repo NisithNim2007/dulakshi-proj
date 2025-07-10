@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Registering...</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background-color: #FCDC73;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .loader-container {
+            text-align: center;
+        }
+
+        .loader {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #193948;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+
+        .success {
+            display: none;
+            font-size: 2rem;
+            color: #193948;
+            margin-top: 20px;
+            animation: pop 0.3s ease-in-out;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pop {
+            from {
+                transform: scale(0.7);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="loader-container">
+        <div class="loader" id="loader"></div>
+        <div class="success" id="success">✅ Success! Redirecting...</div>
+    </div>
+
+    <script>
+        // Show loader, then fetch the backend email sender
+        fetch('/sending-thank-you')
+            .then(res => {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('success').style.display = 'block';
+                setTimeout(() => window.location.href = '/login', 2000);
+            });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cancellations Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="admin-page">
+    {% include 'navbar.html' %}
+
+    <div class="page-content">
+        <h2 class="admin-heading">❌ Cancellations Summary</h2>
+
+        <div class="admin-table-container">
+            <table class="admin-table single-metric">
+                <tbody>
+                    <tr>
+                        <td><strong>Total Cancelled Bookings:</strong></td>
+                        <td>{{ cancelled.total_cancelled }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Estimated Value Lost:</strong></td>
+                        <td>£{{ '%.2f'|format(cancelled.value_lost or 0) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <a href="/admin/reports" class="styled-btn secondary">← Back to Reports</a>
+    </div>
+</body>
+
+</html>

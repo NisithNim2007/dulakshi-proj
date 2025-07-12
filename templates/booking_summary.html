@@ -66,8 +66,21 @@
                 <input type="hidden" name="seat_type_id" value="{{ seat.id }}">
                 <input type="hidden" name="travel_date" value="{{ travel_date }}">
                 <input type="hidden" name="final_price" value="{{ final_price }}">
+                <input type="hidden" name="slot_id" value="{{ slot_id }}"> <!-- ✅ Add this -->
+                <input type="hidden" name="seats_booked" value="{{ seats_booked }}"> <!-- ✅ And this -->
                 <button type="submit" class="btn-book">✅ Confirm Booking</button>
             </form>
+
+            <form id="payLaterForm">
+                <input type="hidden" name="journey_id" value="{{ journey_id }}">
+                <input type="hidden" name="seat_type_id" value="{{ seat.id }}">
+                <input type="hidden" name="travel_date" value="{{ travel_date }}">
+                <input type="hidden" name="final_price" value="{{ final_price }}">
+                <input type="hidden" name="slot_id" value="{{ slot_id }}">
+                <input type="hidden" name="seats_booked" value="{{ seats_booked }}">
+                <button type="submit" class="btn-book" style="background:#f1c40f;">🕓 Pay Later</button>
+            </form>
+
 
             <a href="/booking" class="back-link">← Go Back</a>
         </div>
@@ -112,6 +125,29 @@
             } else {
                 alert("Something went wrong.");
                 document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        });
+
+        document.getElementById('payLaterForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+            payload.status = 'unpaid';
+
+            const response = await fetch('/add-to-cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert("Booking added to cart!");
+                window.location.href = "/cart";
+            } else {
+                alert("Something went wrong.");
             }
         });
     </script>

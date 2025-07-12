@@ -37,6 +37,11 @@
             <a href="/dashboard" class="nav-icon" data-label="Dashboard"><i class='bx bxs-dashboard'></i></a>
             <a href="/booking" class="nav-icon" data-label="Book"><i class='bx bxs-plane-alt'></i></a>
             <a href="/my-bookings" class="nav-icon" data-label="Trips"><i class='bx bxs-receipt'></i></a>
+            {% if cart_count > 0 %}
+            <a href="/cart" class="nav-icon" data-label="Cart">
+                🛒 <span class="cart-badge">{{ cart_count }}</span>
+            </a>
+            {% endif %}
             {% if session.get('user_id') %}
             <a href="/logout" class="nav-icon" data-label="Logout"><i class='bx bxs-log-out'></i></a>
             {% else %}
@@ -45,6 +50,7 @@
             {% endif %}
             {% endif %}
         </div>
+
     </nav>
     <!-- 🟦 Secondary Navbar (User Login/Register) -->
     {% if show_minimal_nav %}

@@ -12,6 +12,7 @@
     <div class="admin-container">
         <h2>✏️ Edit Journey #{{ journey.id }}</h2>
 
+        <!-- ✏️ Update Journey Details -->
         <form method="POST" class="styled-form">
             <label for="departure">Departure City:</label>
             <input name="departure" id="departure" value="{{ journey.departure_city }}" required>
@@ -19,22 +20,49 @@
             <label for="arrival">Arrival City:</label>
             <input name="arrival" id="arrival" value="{{ journey.arrival_city }}" required>
 
-            <label for="departure_time">Departure Time:</label>
-            <input name="departure_time" id="departure_time" type="time"
-                value="{{ journey.departure_time.strftime('%H:%M') }}" required>
-
-            <label for="arrival_time">Arrival Time:</label>
-            <input name="arrival_time" id="arrival_time" type="time"
-                value="{{ journey.arrival_time.strftime('%H:%M') }}" required>
 
             <label for="base_fare">Base Fare (£):</label>
             <input name="base_fare" id="base_fare" type="number" step="0.01" value="{{ journey.base_fare }}" required>
 
             <div style="display: flex; gap: 10px; margin-top: 10px;">
                 <button type="submit" class="styled-btn">💾 Update Journey</button>
-                <a href="/admin/journeys" class="styled-btn secondary">← Cancel</a>
             </div>
         </form>
+
+        <hr style="margin: 40px 0;">
+
+        <!-- 🕐 Add Slot -->
+        <h3>➕ Add Time Slot</h3>
+        <form method="POST" class="styled-form" style="margin-bottom: 20px;"
+            action="{{ url_for('add_slot', journey_id=journey.id) }}">
+            <label for="slot_departure">Departure Time:</label>
+            <input type="time" name="slot_departure" id="slot_departure" required>
+
+            <label for="slot_arrival">Arrival Time:</label>
+            <input type="time" name="slot_arrival" id="slot_arrival" required>
+
+            <button type="submit" class="styled-btn secondary">➕ Add Slot</button>
+        </form>
+
+        <!-- 🧾 View & Delete Slots -->
+        <h3>🕓 Existing Slots</h3>
+        {% if slots %}
+        <ul class="styled-list">
+            {% for slot in slots %}
+            <li>
+                {{ slot.departure_time.strftime('%H:%M') }} → {{ slot.arrival_time.strftime('%H:%M') }}
+                <form method="POST" action="{{ url_for('delete_slot', slot_id=slot.id) }}" style="display:inline;">
+                    <button type="submit" class="styled-btn danger" style="margin-left:10px;">🗑️ Remove</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No time slots available for this journey yet.</p>
+        {% endif %}
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <a href="/admin/journeys" class="styled-btn secondary">← Back to Journeys</a>
+        </div>
     </div>
 </body>
 

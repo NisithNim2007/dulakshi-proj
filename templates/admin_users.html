@@ -20,7 +20,8 @@
                         <th>ID</th>
                         <th>Full Name</th>
                         <th>Email</th>
-                        <th>Role</th>
+                        <th>Update Role</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -29,10 +30,28 @@
                         <td>{{ user.id }}</td>
                         <td>{{ user.name }}</td>
                         <td>{{ user.email }}</td>
-                        <td>{{ user.role }}</td>
+                        <td>
+                            <form method="POST" action="/admin/users/update-role"
+                                style="display:flex; align-items:center; gap:8px;">
+                                <input type="hidden" name="user_id" value="{{ user.id }}">
+                                <select name="new_role">
+                                    <option value="user" {% if user.role=='user' %}selected{% endif %}>User</option>
+                                    <option value="admin" {% if user.role=='admin' %}selected{% endif %}>Admin</option>
+                                </select>
+                                <button type="submit">🔄</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="POST" action="/admin/users/delete"
+                                onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                <input type="hidden" name="user_id" value="{{ user.id }}">
+                                <button type="submit" class="delete-btn">🗑 Delete</button>
+                            </form>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
+
             </table>
         </div>
 

@@ -565,6 +565,12 @@ body.booking-page .booking-form select {
     border: 2px solid #ccc;
     border-radius: 8px;
 }
+body.booking-page .seats_booked{
+    padding: 10px 15px;
+    font-size: 16px;
+    border:  2px solid #ccc;
+    border-radius: 8px;
+}
 
 body.booking-page .btn-book {
     width: 100%;
@@ -1348,4 +1354,28 @@ body.admin-page .admin-table th {
     opacity: 0;
     transform: translateY(-80px);
     pointer-events: none;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -5px;
+    background: red;
+    color: white;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+body.admin-page .delete-btn {
+    background-color: #e74c3c;
+    color: white;
+    padding: 4px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+body.admin-page select{
+    padding: 4px;
+    border-radius: 4px;
 }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>My Cart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="bookings-page">
+    {% include 'navbar.html' %}
+    <div class="page-content">
+        <div class="bookings-container">
+            <h1>🛒 My Cart</h1>
+
+            {% if bookings %}
+            <div class="table-responsive">
+                <table class="booking-table">
+                    <thead>
+                        <tr>
+                            <th>Route</th>
+                            <th>Date</th>
+                            <th>Time Slot</th>
+                            <th>Seat Type</th>
+                            <th>Seats</th>
+                            <th>Price</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings %}
+                        <tr>
+                            <td>{{ b.departure_city }} → {{ b.arrival_city }}</td>
+                            <td>{{ b.travel_date }}</td>
+                            <td>
+                                {{ b.slot_departure.strftime('%H:%M') }} → {{ b.slot_arrival.strftime('%H:%M') }}
+                            </td>
+                            <td>{{ b.type_name }}</td>
+                            <td>{{ b.seats_booked }}</td>
+                            <td>£{{ b.final_price }}</td>
+                            <td>
+                                <form method="POST" action="/remove-from-cart/{{ b.booking_id }}"
+                                    style="display:inline;">
+                                    <button type="submit" class="btn-cancel">❌ Remove</button>
+                                </form>
+                                <form method="POST" action="/checkout/{{ b.booking_id }}" style="display:inline;">
+                                    <button type="submit" class="btn-update">✅ Pay</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>No unpaid bookings in your cart.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>

@@ -13,6 +13,7 @@
         <div class="booking-container">
             <h1>✈️ Book Your Journey</h1>
             <form method="POST" class="booking-form">
+
                 <div class="form-group">
                     <label>Travel Date:</label>
                     <input type="date" name="travel_date" required>
@@ -20,11 +21,20 @@
 
                 <div class="form-group">
                     <label>Journey:</label>
-                    <select name="journey_id" required>
+                    <select name="journey_id" id="journeySelect" required>
+                        <option value="">Select a Journey</option>
                         {% for j in journeys %}
                         <option value="{{ j.id }}">{{ j.departure_city }} → {{ j.arrival_city }} (£{{ j.base_fare }})
                         </option>
                         {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Time Slot:</label>
+                    <select name="slot_id" id="slotSelect" required>
+                        <option value="">Select a Time Slot</option>
+                        <!-- JavaScript will populate this -->
                     </select>
                 </div>
 
@@ -37,10 +47,47 @@
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label>Number of Seats:</label>
+                    <input type="number" class="seats_booked" name="seats_booked" min="1" max="100" value="1" required>
+                </div>
+
                 <button type="submit" class="btn-book">Book Now</button>
             </form>
         </div>
     </div>
+
+    <script>
+        document.getElementById("journeySelect").addEventListener("change", async function () {
+            const journeyId = this.value;
+            const slotSelect = document.getElementById("slotSelect");
+
+            // Clear current options
+            slotSelect.innerHTML = '<option value="">Loading...</option>';
+
+            if (!journeyId) return;
+
+            try {
+                const response = await fetch(`/api/slots/${journeyId}`);
+                const slots = await response.json();
+
+                if (slots.length === 0) {
+                    slotSelect.innerHTML = '<option value="">No time slots available</option>';
+                    return;
+                }
+
+                slotSelect.innerHTML = '';
+                slots.forEach(slot => {
+                    const opt = document.createElement('option');
+                    opt.value = slot.id;
+                    opt.textContent = `${slot.departure_time} → ${slot.arrival_time}`;
+                    slotSelect.appendChild(opt);
+                });
+            } catch (error) {
+                slotSelect.innerHTML = '<option value="">Error loading slots</option>';
+            }
+        });
+    </script>
 </body>
 
 </html>

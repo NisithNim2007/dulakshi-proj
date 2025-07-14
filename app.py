@@ -313,7 +313,7 @@ def booking():
                 </body>
                 """
 
-        available = 100 - total_booked
+        available = 140- total_booked
         if seats_booked > available:
             return f"""
             <body style='background-color: #FCDC73;'>
@@ -1052,7 +1052,7 @@ def edit_journey(journey_id):
                 journey_id=journey.id,
                 departure_time=dep_time,
                 arrival_time=arr_time,
-                available_seats=100
+                available_seats=140
             )
             db.session.add(new_slot)
             db.session.commit()
@@ -1279,7 +1279,7 @@ def add_slot(journey_id):
         journey_id=journey_id,
         departure_time=dep_time,
         arrival_time=arr_time,
-        available_seats=100
+        available_seats=140
     )
     db.session.add(new_slot)
     db.session.commit()

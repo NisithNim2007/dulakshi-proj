@@ -1,0 +1,4 @@
+Email : admin@gmail.com
+Password : 1234
+
+Use the above logins for the access to admin tools + end user functionalities
